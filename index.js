@@ -13,12 +13,14 @@ app.use(cors());
 const Contact = require('./models/Contact.model');
 const CourseList = require('./models/CourseList.model');
 
+
 // Routers
 const contactRouter = require('./routes/Contact.router');
 const courseListRouter = require('./routes/CourseList.router');
 const courseDetailsRouter = require('./routes/CourseDetails.router');
 const userRouter = require('./routes/User.router');
 const questionsRouter = require('./routes/Question.router');
+const testRouter = require('./routes/Test.router');
 
 // Middleware
 app.use(express.json());
@@ -32,6 +34,7 @@ app.use('/api/courseList', courseListRouter);
 app.use('/api/courseDetail', courseDetailsRouter);
 app.use('/api/user', userRouter);
 app.use('/api/questions', questionsRouter);
+app.use('/api/tests', testRouter);
 
 // Root route
 app.get('/', (req, res) => {
