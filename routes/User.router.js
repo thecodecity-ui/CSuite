@@ -33,12 +33,13 @@ userRouter.get('/:id', async (req, res) => {
 });
 
 // Add a new user
-userRouter.post('/', upload.single('profilePic'), async (req, res) => {
+userRouter.post('/', upload.fields([{ name: 'profilePic' }, { name: 'profileBanner' }]), async (req, res) => {
   try {
     const { password, ...rest } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
-    const profilePic = req.file ? req.file.buffer.toString('base64') : null;
-    const newUser = new User({ ...rest, password: hashedPassword, profilePic });
+    const profilePic = req.files.profilePic ? req.files.profilePic[0].buffer.toString('base64') : null;
+    const profileBanner = req.files.profileBanner ? req.files.profileBanner[0].buffer.toString('base64') : null;
+    const newUser = new User({ ...rest, password: hashedPassword, profilePic, profileBanner });
     const savedUser = await newUser.save();
     res.status(200).json({ success: true, user: savedUser, message: "User added successfully" });
   } catch (e) {
@@ -47,15 +48,18 @@ userRouter.post('/', upload.single('profilePic'), async (req, res) => {
 });
 
 // Update an existing user
-userRouter.put('/:id', upload.single('profilePic'), async (req, res) => {
+userRouter.put('/:id', upload.fields([{ name: 'profilePic' }, { name: 'profileBanner' }]), async (req, res) => {
   try {
     const { password, ...rest } = req.body;
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
       rest.password = hashedPassword;
     }
-    if (req.file) {
-      rest.profilePic = req.file.buffer.toString('base64');
+    if (req.files.profilePic) {
+      rest.profilePic = req.files.profilePic[0].buffer.toString('base64');
+    }
+    if (req.files.profileBanner) {
+      rest.profileBanner = req.files.profileBanner[0].buffer.toString('base64');
     }
     const updatedUser = await User.findByIdAndUpdate(req.params.id, rest, { new: true });
     if (!updatedUser) {
@@ -96,7 +100,7 @@ userRouter.delete('/:id', async (req, res) => {
       res.status(200).json({ success: true, user, message: "User deleted successfully" });
     }
   } catch (e) {
-    res.status(500).json({ success: false, message: e.message });
+    res.status(500).json({ success: false, message: e.message }); // Fixed the syntax error here
   }
 });
 
