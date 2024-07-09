@@ -5,6 +5,7 @@ const User = require('../models/User.model');
 
 const userRouter = Router();
 
+// Multer setup for handling multipart form data (including file uploads)
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -56,10 +57,10 @@ userRouter.put('/:id', upload.fields([{ name: 'profilePic' }, { name: 'profileBa
       rest.password = hashedPassword;
     }
     if (req.files.profilePic) {
-      rest.profilePic = req.files.profilePic[0].buffer.toString('base64');
+      rest.profilePic = req.files.profilePic[0].buffer.toString('base64'); // Convert buffer to base64 string
     }
     if (req.files.profileBanner) {
-      rest.profileBanner = req.files.profileBanner[0].buffer.toString('base64');
+      rest.profileBanner = req.files.profileBanner[0].buffer.toString('base64'); // Convert buffer to base64 string
     }
     const updatedUser = await User.findByIdAndUpdate(req.params.id, rest, { new: true });
     if (!updatedUser) {
@@ -100,7 +101,7 @@ userRouter.delete('/:id', async (req, res) => {
       res.status(200).json({ success: true, user, message: "User deleted successfully" });
     }
   } catch (e) {
-    res.status(500).json({ success: false, message: e.message }); // Fixed the syntax error here
+    res.status(500).json({ success: false, message: e.message });
   }
 });
 
