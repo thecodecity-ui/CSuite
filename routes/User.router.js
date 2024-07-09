@@ -2,12 +2,33 @@ const {Router} = require('express')
 const userRouter = Router()
 const  User = require('../models/User.model')
 
-//get User
+//get Users
 userRouter.get('/',async(req,res)=>{
     
     try{
         data = await User.find({})
         res.status(200).json({success : true ,user : data , message : "Get request success"})
+
+    }
+    catch(e){
+        res.status(500).json({success : false ,message : e.message})
+
+    }
+
+})
+//get user
+userRouter.get('/:id',async(req,res)=>{
+    
+    try{
+        data = await User.findById(req.params.id)
+        if (!data){
+
+            res.status(404).json({success : false , message : "User not found"})
+        }
+        else{
+
+            res.status(200).json({success : true ,user : data , message : "Get request success"})
+        }
 
     }
     catch(e){
@@ -32,6 +53,29 @@ userRouter.post('/',async(req,res)=>{
 
 
 })
+
+
+
+// edit a existing user
+
+userRouter.put('/:id',async(req,res)=>{
+    try{
+        
+
+        const user = await User.findByIdAndUpdate(req.params.id , req.body) ;
+        if (!user){
+            res.status(404).json({success : false ,message:"user Not Found"})
+        }
+        else{
+            res.status(200).send({success : true ,message:"Successfully updated"})
+        }
+    }
+    catch(e){
+        res.status(500).json({success : false ,message : e.message})
+
+    }
+})
+
 
 //add a  course to user
 userRouter.put('/updatecourse/:id',async(req,res)=>{
@@ -80,23 +124,23 @@ userRouter.put('/updatecourse/:id',async(req,res)=>{
 
 
 // delete a user
-// userRouter.delete('/:id',async(req,res)=>{
+userRouter.delete('/:id',async(req,res)=>{
 
-//         try{
-//             const user = await User.findByIdAndDelete(req.params.id);
-//             if(user){
-//                 res.status(200).json({success : true ,User:user})
-//             }
-//             else{
-//                 res.status(404).json({success : false ,message:"user Not Found"})
+        try{
+            const user = await User.findByIdAndDelete(req.params.id);
+            if(user){
+                res.status(200).json({success : true ,User:user})
+            }
+            else{
+                res.status(404).json({success : false ,message:"user Not Found"})
     
-//             }
+            }
     
-//         }
-//         catch(e){
-//             res.status(400).json({success : false ,error:e.message})
+        }
+        catch(e){
+            res.status(400).json({success : false ,error:e.message})
     
-//         }
-// })
+        }
+})
 
 module.exports = userRouter;
