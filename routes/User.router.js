@@ -5,7 +5,7 @@ const User = require('../models/User.model');
 
 const userRouter = Router();
 
-// Multer setup for handling multipart form data (including file uploads)
+// Multer setup for file uploads
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
