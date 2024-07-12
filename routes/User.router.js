@@ -5,7 +5,7 @@ const User = require('../models/User.model');
 
 const userRouter = Router();
 
-// Multer setup for handling multipart form data (including file uploads)
+// Multer setup for file uploads
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -36,11 +36,20 @@ userRouter.get('/:id', async (req, res) => {
 // Add a new user
 userRouter.post('/', upload.fields([{ name: 'profilePic' }, { name: 'profileBanner' }]), async (req, res) => {
   try {
-    const { password, ...rest } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const { password, socialMediaId, ...rest } = req.body;
     const profilePic = req.files.profilePic ? req.files.profilePic[0].buffer.toString('base64') : null;
     const profileBanner = req.files.profileBanner ? req.files.profileBanner[0].buffer.toString('base64') : null;
-    const newUser = new User({ ...rest, password: hashedPassword, profilePic, profileBanner });
+
+    let newUser;
+    if (socialMediaId) {
+      newUser = new User({ ...rest, profilePic, profileBanner, socialMediaId });
+    } else if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      newUser = new User({ ...rest, password: hashedPassword, profilePic, profileBanner });
+    } else {
+      return res.status(400).json({ success: false, message: 'Password or social media ID required' });
+    }
+
     const savedUser = await newUser.save();
     res.status(200).json({ success: true, user: savedUser, message: "User added successfully" });
   } catch (e) {
@@ -51,17 +60,19 @@ userRouter.post('/', upload.fields([{ name: 'profilePic' }, { name: 'profileBann
 // Update an existing user
 userRouter.put('/:id', upload.fields([{ name: 'profilePic' }, { name: 'profileBanner' }]), async (req, res) => {
   try {
-    const { password, ...rest } = req.body;
+    const { password, socialMediaId, ...rest } = req.body;
+
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
       rest.password = hashedPassword;
     }
     if (req.files.profilePic) {
-      rest.profilePic = req.files.profilePic[0].buffer.toString('base64'); // Convert buffer to base64 string
+      rest.profilePic = req.files.profilePic[0].buffer.toString('base64');
     }
     if (req.files.profileBanner) {
-      rest.profileBanner = req.files.profileBanner[0].buffer.toString('base64'); // Convert buffer to base64 string
+      rest.profileBanner = req.files.profileBanner[0].buffer.toString('base64');
     }
+
     const updatedUser = await User.findByIdAndUpdate(req.params.id, rest, { new: true });
     if (!updatedUser) {
       res.status(404).json({ success: false, message: "User not found" });

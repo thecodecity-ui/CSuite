@@ -1,6 +1,14 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
+
+const TestScoreSchema = new mongoose.Schema({
+  courseId: mongoose.Schema.Types.ObjectId,
+  lessonId: Number,
+  score: Number,
+  isCompleted: Boolean
+}, { _id: false });
+
 const EmergencyContactSchema = mongoose.Schema({
   name: {
     type: String,
@@ -36,7 +44,8 @@ const UserSchema = mongoose.Schema(
     },
     password: {
       type: String,
-      required: [false, 'Password field required']
+      required: [false, 'Password field required'],
+      select: false 
     },
     linkedIn: {
       type: String,
@@ -86,14 +95,20 @@ const UserSchema = mongoose.Schema(
       type: String,
       required: [false, 'Profile banner field required']
     },
-    emergencyContact: EmergencyContactSchema
+    emergencyContact: EmergencyContactSchema,
+    socialMediaId: {
+      type: String,
+      required: [false, 'Social media ID required'],
+      unique: true,
+      sparse: true 
+    }
   },
   { timestamps: true }
 );
 
-// Hash the password before saving the user document
+// Hash the password 
 UserSchema.pre('save', async function (next) {
-  if (this.isModified('password') || this.isNew) {
+  if (this.isModified('password') && this.password) {
     try {
       const salt = await bcrypt.genSalt(10);
       this.password = await bcrypt.hash(this.password, salt);
@@ -102,7 +117,7 @@ UserSchema.pre('save', async function (next) {
       next(error);
     }
   } else {
-    return next();
+    next();
   }
 });
 

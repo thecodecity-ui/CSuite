@@ -1,72 +1,84 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
-const CourseDetailsSchema = mongoose.Schema(
+const LessonSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: [true, 'Lesson title is required']
+  },
+  description: {
+    type: String,
+    required: [true, 'Lesson description is required']
+  },
+  videoUrl: {
+    type: String,
+    required: [true, 'Lesson video URL is required']
+  },
+  isTestAvailable: {
+    type: Boolean,
+    default: false
+  },
+  timeLimit: {
+    type: Number,
+    default: 0
+  },
+  questions: {
+    type: Array,
+    default: []
+  }
+}, { _id: false });
 
-    {
-        
-        title :{
-            type : String ,
-            required : [true, 'title field required']
-        },
+const CourseDetailsSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: [true, 'Title field required']
+  },
+  overviewPoints: {
+    type: [String],
+    required: [true, 'Overview points field required']
+  },
+  description: {
+    type: String,
+    required: [true, 'Description field required']
+  },
+  lessons: {
+    type: [LessonSchema],
+    required: [true, 'Lessons field required']
+  },
+  header: {
+    type: String,
+    required: [true, 'Header field required']
+  },
+  videoUrl: {
+    type: String,
+    required: [true, 'Video URL field required']
+  },
+  whoIsThisFor: {
+    type: [String],
+    required: [true, 'Who is this for field required']
+  },
+  whatYouGet: {
+    type: [String],
+    required: [true, 'What you get field required']
+  },
+  syllabus: {
+    type: String,
+    required: [true, 'Syllabus field required']
+  },
+  price: {
+    type: Number,
+    required: [true, 'Price field required']
+  },
+  image :{
+    type : String ,
+    required : [true, 'image field required']
+},
+  courseDetails: {
+    type: [String],
+    required: [true, 'Course details field required']
+  }
+  
+}, { timestamps: true });
 
+const CourseDetail = mongoose.model('CourseDetail', CourseDetailsSchema);
 
-        overviewPoints :{
-            type : Array ,
-            required : [true, 'overviewPoints field required']
-        },
-        
-        description:{
-            type : String ,
-            required : [true, 'description field required']
-        },
-        
-        lessons :{
-            type : Array ,
-            required : [true, 'lessons field required']
-        },
-        
-        header:{
-            type : String ,
-            required : [true, 'header field required']
-        },
-        videoUrl:{
-            type : String ,
-            required : [true, 'videoUrl field required']
-        },
-        
-        whoIsThisFor :{
-            type : Array ,
-            required : [true, 'whoIsThisFor field required']
-        },
-        
-        whatYouGet :{
-            type : Array ,
-            required : [true, 'whatYouGet field required']
-        },
-
-        syllabus:{
-            type : String ,
-            required : [true, 'syllabus field required']
-        },
-
-        price:{
-            type : Number ,
-            required : [true, 'price field required']
-        },
-
-        courseDetails :{
-            type : Array ,
-            required : [true, 'courseDetails field required']
-        },
-
-
-
-
-
-    }
-)
-
-
-const CourseDetail = mongoose.model("CourseDetail",CourseDetailsSchema)
-
-module.exports = CourseDetail
+module.exports = CourseDetail;

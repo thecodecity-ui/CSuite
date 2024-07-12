@@ -1,76 +1,65 @@
-const {Router} = require('express')
-const courseDetailsRouter = Router()
-const  CourseDetail= require('../models/CourseDetails.model')
+const { Router } = require('express');
+const courseDetailsRouter = Router();
+const CourseDetail = require('../models/CourseDetails.model');
 
-//get courselist
-courseDetailsRouter.get('/',async(req,res)=>{
-    
-    try{
-        data = await CourseDetail.find({})
-        res.status(200).json({success : true ,courses : data , message : "Get request success"})
+// Get all courses
+courseDetailsRouter.get('/', async (req, res) => {
+  try {
+    const data = await CourseDetail.find({});
+    res.status(200).json({ success: true, courses: data, message: "Get request success" });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
 
+// Get a single course by ID
+courseDetailsRouter.get('/:id', async (req, res) => {
+  try {
+    const course = await CourseDetail.findById(req.params.id);
+    if (!course) {
+      return res.status(404).json({ success: false, message: "Course not found" });
     }
-    catch(e){
-        res.status(500).json({success : false ,message : e.message})
+    res.status(200).json({ success: true, course, message: "Get course by ID success" });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
 
+// Add a new course
+courseDetailsRouter.post('/', async (req, res) => {
+  try {
+    const newCourse = new CourseDetail(req.body);
+    await newCourse.save();
+    res.status(201).json({ success: true, course: newCourse, message: "Course created successfully" });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+
+// Edit a course by ID
+courseDetailsRouter.put('/:id', async (req, res) => {
+  try {
+    const updatedCourse = await CourseDetail.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!updatedCourse) {
+      return res.status(404).json({ success: false, message: "Course not found" });
     }
+    res.status(200).json({ success: true, course: updatedCourse, message: "Course updated successfully" });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
 
-})
-
-// //add a new course 
-// courseDetailsRouter.post('/',async(req,res)=>{
-
-//     try{
-//         data = await CourseDetail.create(req.body)
-//         res.status(200).json({success : true ,courses : data , message : "Courese added successfully"})
-
-//     }
-//     catch(e){
-//         res.status(500).json({success : false ,message : e.message})
-
-//     }
-
-
-// })
-
-// //edit a existing course
-// courseDetailsRouter.put('/:id',async(req,res)=>{
-//     try{
-//         // data = await CourseList.create(req.body)
-//         // res.status(200).json({courses : data , message : "Courese added successfully"})
-
-//         const course = await CourseDetail.findByIdAndUpdate(req.params.id , req.body) ;
-//         if (!course){
-//             res.status(404).json({success : false ,message:"Courses Not Found"})
-//         }
-//         else{
-//             res.status(200).send({success : true ,message:"Successfully updated"})
-//         }
-//     }
-//     catch(e){
-//         res.status(500).json({success : false ,message : e.message})
-
-//     }
-// })
-
-// // delete a course
-// courseDetailsRouter.delete('/:id',async(req,res)=>{
-
-//         try{
-//             const course = await CourseDetail.findByIdAndDelete(req.params.id);
-//             if(course){
-//                 res.status(200).json({success : true ,course:course})
-//             }
-//             else{
-//                 res.status(404).json({success : false ,message:"course Not Found"})
-    
-//             }
-    
-//         }
-//         catch(e){
-//             res.status(400).json({success : false ,error:e.message})
-    
-//         }
-// })
+// Delete a course by ID
+courseDetailsRouter.delete('/:id', async (req, res) => {
+  try {
+    const deletedCourse = await CourseDetail.findByIdAndDelete(req.params.id);
+    if (!deletedCourse) {
+      return res.status(404).json({ success: false, message: "Course not found" });
+    }
+    res.status(200).json({ success: true, message: "Course deleted successfully" });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
 
 module.exports = courseDetailsRouter;

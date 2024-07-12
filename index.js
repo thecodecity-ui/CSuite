@@ -11,12 +11,12 @@ app.use(cors());
 
 // Models
 const Contact = require('./models/Contact.model');
-const CourseList = require('./models/CourseList.model');
+// const CourseList = require('./models/CourseList.model');
 
 
 // Routers
 const contactRouter = require('./routes/Contact.router');
-const courseListRouter = require('./routes/CourseList.router');
+//const courseListRouter = require('./routes/CourseList.router');
 const courseDetailsRouter = require('./routes/CourseDetails.router');
 const userRouter = require('./routes/User.router');
 const questionsRouter = require('./routes/Question.router');
@@ -30,7 +30,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // Use routers
 app.use('/api/contact', contactRouter);
-app.use('/api/courseList', courseListRouter);
+// app.use('/api/courseList', courseListRouter);
 app.use('/api/courseDetail', courseDetailsRouter);
 app.use('/api/user', userRouter);
 app.use('/api/questions', questionsRouter);
