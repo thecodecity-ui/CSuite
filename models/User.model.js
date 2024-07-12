@@ -55,10 +55,10 @@ const UserSchema = mongoose.Schema(
       type: String,
       required: [false, 'Bio field required']
     },
-    coursePurchased: {
-      type: [String],
-      required: [false, 'Course purchased field required']
-    },
+    coursePurchased: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'CourseDetail'
+    }],
     idCard: {
       type: String,
       required: [false, 'ID card field required']
@@ -95,6 +95,7 @@ const UserSchema = mongoose.Schema(
       type: String,
       required: [false, 'Profile banner field required']
     },
+    testScores: [TestScoreSchema],
     emergencyContact: EmergencyContactSchema,
     socialMediaId: {
       type: String,

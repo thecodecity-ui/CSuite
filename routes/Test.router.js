@@ -65,7 +65,7 @@ router.delete('/score/:userId/:courseId/:lessonId', async (req, res) => {
   }
 });
 
-// Get all test data
+// Get all test data (for testing purposes)
 router.get('/', async (req, res) => {
   try {
     const testData = await Test.find();
@@ -75,7 +75,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get test data 
+// Get test data by userId, courseId, lessonId
 router.get('/:userId/:courseId/:lessonId', async (req, res) => {
   const { userId, courseId, lessonId } = req.params;
   try {

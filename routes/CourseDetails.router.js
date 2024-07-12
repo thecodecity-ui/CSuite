@@ -5,8 +5,8 @@ const CourseDetail = require('../models/CourseDetails.model');
 // Get all courses
 courseDetailsRouter.get('/', async (req, res) => {
   try {
-    const data = await CourseDetail.find({});
-    res.status(200).json({ success: true, courses: data, message: "Get request success" });
+    const courses = await CourseDetail.find({});
+    res.status(200).json({ success: true, courses, message: "Get request success" });
   } catch (e) {
     res.status(500).json({ success: false, message: e.message });
   }

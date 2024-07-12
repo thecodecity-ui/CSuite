@@ -2,6 +2,7 @@ const { Router } = require('express');
 const multer = require('multer');
 const bcrypt = require('bcrypt');
 const User = require('../models/User.model');
+const CourseDetail = require('../models/CourseDetails.model'); 
 
 const userRouter = Router();
 
@@ -24,10 +25,9 @@ userRouter.get('/:id', async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
-      res.status(404).json({ success: false, message: "User not found" });
-    } else {
-      res.status(200).json({ success: true, user, message: "Get request success" });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
+    res.status(200).json({ success: true, user, message: "Get request success" });
   } catch (e) {
     res.status(500).json({ success: false, message: e.message });
   }
@@ -75,10 +75,9 @@ userRouter.put('/:id', upload.fields([{ name: 'profilePic' }, { name: 'profileBa
 
     const updatedUser = await User.findByIdAndUpdate(req.params.id, rest, { new: true });
     if (!updatedUser) {
-      res.status(404).json({ success: false, message: "User not found" });
-    } else {
-      res.status(200).json({ success: true, user: updatedUser, message: "Successfully updated" });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
+    res.status(200).json({ success: true, user: updatedUser, message: "Successfully updated" });
   } catch (e) {
     res.status(500).json({ success: false, message: e.message });
   }
@@ -87,16 +86,24 @@ userRouter.put('/:id', upload.fields([{ name: 'profilePic' }, { name: 'profileBa
 // Add a course to user
 userRouter.put('/updatecourse/:id', async (req, res) => {
   try {
+    const { courseId } = req.body;
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
-    if (!req.body.coursePurchased) {
-      return res.status(400).json({ success: false, message: "Bad request" });
+
+    const courseExists = await CourseDetail.findById(courseId);
+    if (!courseExists) {
+      return res.status(404).json({ success: false, message: "Course not found" });
     }
-    user.coursePurchased.push(req.body.coursePurchased);
+
+    if (user.coursePurchased.includes(courseId.toString())) {
+      return res.status(400).json({ success: false, message: "Course already purchased" });
+    }
+
+    user.coursePurchased.push(courseId);
     const updatedUser = await user.save();
-    res.status(200).json({ success: true, user: updatedUser, message: "Successfully updated" });
+    res.status(200).json({ success: true, user: updatedUser, message: "Course added successfully" });
   } catch (e) {
     res.status(500).json({ success: false, message: e.message });
   }
@@ -107,10 +114,9 @@ userRouter.delete('/:id', async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
     if (!user) {
-      res.status(404).json({ success: false, message: "User not found" });
-    } else {
-      res.status(200).json({ success: true, user, message: "User deleted successfully" });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
+    res.status(200).json({ success: true, user, message: "User deleted successfully" });
   } catch (e) {
     res.status(500).json({ success: false, message: e.message });
   }
