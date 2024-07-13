@@ -51,7 +51,7 @@ userRouter.post('/', upload.fields([{ name: 'profilePic' }, { name: 'profileBann
     }
 
     const savedUser = await newUser.save();
-    res.status(200).json({ success: true, user: savedUser, message: "User added successfully" });
+    res.status(201).json({ success: true, user: savedUser, message: "User added successfully" });
   } catch (e) {
     res.status(500).json({ success: false, message: e.message });
   }
@@ -60,7 +60,7 @@ userRouter.post('/', upload.fields([{ name: 'profilePic' }, { name: 'profileBann
 // Update an existing user
 userRouter.put('/:id', upload.fields([{ name: 'profilePic' }, { name: 'profileBanner' }]), async (req, res) => {
   try {
-    const { password, socialMediaId, ...rest } = req.body;
+    const { password, ...rest } = req.body;
 
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -92,16 +92,16 @@ userRouter.put('/updatecourse/:id', async (req, res) => {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    const courseExists = await CourseDetail.findById(courseId);
-    if (!courseExists) {
+    const course = await CourseDetail.findById(courseId);
+    if (!course) {
       return res.status(404).json({ success: false, message: "Course not found" });
     }
 
-    if (user.coursePurchased.includes(courseId.toString())) {
+    if (user.coursePurchased.some(purchased => purchased.courseId.toString() === courseId.toString())) {
       return res.status(400).json({ success: false, message: "Course already purchased" });
     }
 
-    user.coursePurchased.push(courseId);
+    user.coursePurchased.push({ courseId: course._id, courseName: course.title });
     const updatedUser = await user.save();
     res.status(200).json({ success: true, user: updatedUser, message: "Course added successfully" });
   } catch (e) {
@@ -116,7 +116,7 @@ userRouter.delete('/:id', async (req, res) => {
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
-    res.status(200).json({ success: true, user, message: "User deleted successfully" });
+    res.status(200).json({ success: true, message: "User deleted successfully" });
   } catch (e) {
     res.status(500).json({ success: false, message: e.message });
   }

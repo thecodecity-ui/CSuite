@@ -7,14 +7,14 @@ const questionSchema = new mongoose.Schema({
 });
 
 const lessonSchema = new mongoose.Schema({
-  lessonId: String, // Ensure this matches LessonSchema in CourseDetails.model.js
+  lessonId: String, 
   isTestAvailable: Boolean,
   timeLimit: String,
   questions: [questionSchema],
 });
 
 const courseSchema = new mongoose.Schema({
-  courseId: mongoose.Schema.Types.ObjectId, // Ensure this matches CourseDetailsSchema in CourseDetails.model.js
+  courseId: mongoose.Schema.Types.ObjectId, 
   title: String,
   lessons: [lessonSchema],
 });

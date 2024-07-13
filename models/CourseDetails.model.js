@@ -40,6 +40,10 @@ const CourseDetailsSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Description field required']
   },
+  image: {
+    type: String,
+    required: [true, 'Image field required']
+  },
   lessons: {
     type: [LessonSchema],
     required: [true, 'Lessons field required']
@@ -68,10 +72,7 @@ const CourseDetailsSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'Price field required']
   },
-  image: {
-    type: String,
-    required: [true, 'Image field required']
-  },
+  
   courseDetails: {
     type: [String],
     required: [true, 'Course details field required']
