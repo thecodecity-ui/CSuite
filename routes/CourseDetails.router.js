@@ -4,11 +4,11 @@ const CourseDetail = require('../models/CourseDetails.model');
 
 const courseDetailsRouter = Router();
 
-// Configure Multer
-const storage = multer.memoryStorage(); // Store files in memory as Buffer objects
+
+const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-// Get all courses
+
 courseDetailsRouter.get('/', async (req, res) => {
   try {
     const courses = await CourseDetail.find({});
@@ -18,7 +18,7 @@ courseDetailsRouter.get('/', async (req, res) => {
   }
 });
 
-// Get a single course by ID
+// Get course by ID
 courseDetailsRouter.get('/:id', async (req, res) => {
   try {
     const course = await CourseDetail.findById(req.params.id);
@@ -31,41 +31,59 @@ courseDetailsRouter.get('/:id', async (req, res) => {
   }
 });
 
-// Add a new course with file uploads
-courseDetailsRouter.post('/', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'syllabus', maxCount: 1 }]), async (req, res) => {
+// Add a new course
+courseDetailsRouter.post('/', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'syllabus', maxCount: 10 }]), async (req, res) => {
   try {
-    const { title, overviewPoints, description, lessons, header, videoUrl, whoIsThisFor, whatYouGet, price, courseDetails } = req.body;
+    const { title, overviewPoints, description, header, videoUrl, whoIsThisFor, whatYouGet, price, courseDetails } = req.body;
+
+    
+    const parsedOverviewPoints = JSON.parse(overviewPoints || '[]');
+    const parsedWhoIsThisFor = JSON.parse(whoIsThisFor || '[]');
+    const parsedWhatYouGet = JSON.parse(whatYouGet || '[]');
+    const parsedCourseDetails = JSON.parse(courseDetails || '[]');
+
 
     const image = req.files['image'] ? req.files['image'][0].buffer.toString('base64') : null;
     const syllabus = req.files['syllabus'] ? req.files['syllabus'][0].buffer.toString('base64') : null;
 
+
     const newCourse = new CourseDetail({
       title,
-      overviewPoints: JSON.parse(overviewPoints),
+      overviewPoints: parsedOverviewPoints,
       description,
       image,
-      lessons: JSON.parse(lessons),
+      syllabus,
       header,
       videoUrl,
-      whoIsThisFor: JSON.parse(whoIsThisFor),
-      whatYouGet: JSON.parse(whatYouGet),
-      syllabus,
+      whoIsThisFor: parsedWhoIsThisFor,
+      whatYouGet: parsedWhatYouGet,
       price,
-      courseDetails: JSON.parse(courseDetails)
+      courseDetails: parsedCourseDetails
     });
 
     await newCourse.save();
+
     res.status(201).json({ success: true, course: newCourse, message: "Course created successfully" });
-  } catch (e) {
-    res.status(500).json({ success: false, message: e.message });
+  } catch (error) {
+    
+    console.error("Error creating course:", error);
+    res.status(400).json({ success: false, message: error.message });
   }
 });
 
-// Edit a course by ID
+
 courseDetailsRouter.put('/:id', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'syllabus', maxCount: 1 }]), async (req, res) => {
   try {
     const { title, overviewPoints, description, lessons, header, videoUrl, whoIsThisFor, whatYouGet, price, courseDetails } = req.body;
 
+    
+    const parsedOverviewPoints = JSON.parse(overviewPoints || '[]');
+    const parsedWhoIsThisFor = JSON.parse(whoIsThisFor || '[]');
+    const parsedWhatYouGet = JSON.parse(whatYouGet || '[]');
+    const parsedCourseDetails = JSON.parse(courseDetails || '[]');
+    const parsedLessons = JSON.parse(lessons || '[]');
+
+   
     const image = req.files['image'] ? req.files['image'][0].buffer.toString('base64') : null;
     const syllabus = req.files['syllabus'] ? req.files['syllabus'][0].buffer.toString('base64') : null;
 
@@ -73,17 +91,17 @@ courseDetailsRouter.put('/:id', upload.fields([{ name: 'image', maxCount: 1 }, {
       req.params.id,
       {
         title,
-        overviewPoints: JSON.parse(overviewPoints),
+        overviewPoints: parsedOverviewPoints,
         description,
         ...(image && { image }),
-        lessons: JSON.parse(lessons),
+        lessons: parsedLessons,
         header,
         videoUrl,
-        whoIsThisFor: JSON.parse(whoIsThisFor),
-        whatYouGet: JSON.parse(whatYouGet),
+        whoIsThisFor: parsedWhoIsThisFor,
+        whatYouGet: parsedWhatYouGet,
         ...(syllabus && { syllabus }),
         price,
-        courseDetails: JSON.parse(courseDetails)
+        courseDetails: parsedCourseDetails
       },
       { new: true, runValidators: true }
     );
@@ -98,7 +116,7 @@ courseDetailsRouter.put('/:id', upload.fields([{ name: 'image', maxCount: 1 }, {
   }
 });
 
-// Delete a course by ID
+
 courseDetailsRouter.delete('/:id', async (req, res) => {
   try {
     const deletedCourse = await CourseDetail.findByIdAndDelete(req.params.id);
