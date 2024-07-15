@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-//For individual lesson videos
+
 const VideoSchema = new mongoose.Schema({
   title: {
     type: String,
@@ -20,7 +20,6 @@ const VideoSchema = new mongoose.Schema({
   }
 }, { _id: false });
 
-// Schema for a lesson
 const LessonSchema = new mongoose.Schema({
   lessonId: {
     type: Number,
@@ -49,7 +48,7 @@ const LessonSchema = new mongoose.Schema({
   testId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Test',
-    required: false
+    default: null 
   }
 }, { _id: false });
 
@@ -84,6 +83,7 @@ const WhoIsThisForSchema = new mongoose.Schema({
     required: true
   }
 }, { _id: false });
+
 
 const CourseDetailsSchema = new mongoose.Schema({
   title: {
