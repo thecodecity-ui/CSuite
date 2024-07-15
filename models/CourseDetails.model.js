@@ -98,9 +98,15 @@ const CourseDetailsSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Description field required']
   },
+<<<<<<< HEAD
   image: {
     type: String,
     default: ''
+=======
+   image: {
+    type: String,
+    required: [true, 'Image field required']
+>>>>>>> bfc40feca42566fa056bd43daaca418ce87447d0
   },
   lessons: {
     type: [LessonSchema],
@@ -128,8 +134,14 @@ const CourseDetailsSchema = new mongoose.Schema({
   },
   price: {
     type: Number,
+<<<<<<< HEAD
     default: 0
   },
+=======
+    required: [true, 'Price field required']
+  },
+ 
+>>>>>>> bfc40feca42566fa056bd43daaca418ce87447d0
   courseDetails: {
     type: [
       {
