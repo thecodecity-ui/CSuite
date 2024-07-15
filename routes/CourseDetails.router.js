@@ -129,4 +129,48 @@ courseDetailsRouter.delete('/:id', async (req, res) => {
   }
 });
 
+
+
+
+courseDetailsRouter.put('/:courseId/lessons', async (req, res) => {
+  const { courseId } = req.params;
+  const { lessonId, title, description, videos, pdfFiles, pptFiles, testId } = req.body;
+
+  try {
+    
+    if (!mongoose.Types.ObjectId.isValid(courseId)) {
+      return res.status(400).json({ success: false, message: 'Invalid course ID' });
+    }
+
+
+    const course = await CourseDetail.findById(courseId);
+    if (!course) {
+      return res.status(404).json({ success: false, message: 'Course not found' });
+    }
+
+   
+    if (!lessonId || !title || !description) {
+      return res.status(400).json({ success: false, message: 'Lesson ID, title, and description are required' });
+    }
+
+    const newLesson = {
+      lessonId,
+      title,
+      description,
+      videos: videos || [],
+      pdfFiles: pdfFiles || [],
+      pptFiles: pptFiles || [],
+      testId: testId ? new mongoose.Types.ObjectId(testId) : null
+    };
+
+    
+    course.lessons.push(newLesson);
+    await course.save();
+
+    res.status(200).json({ success: true, message: 'Lesson added successfully', course });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 module.exports = courseDetailsRouter;

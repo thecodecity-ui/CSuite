@@ -27,15 +27,16 @@ const LessonSchema = new mongoose.Schema({
   },
   title: {
     type: String,
-    required: [true, 'Lesson title is required']
+    required: [false, 'Lesson title is required'],
+    default: null
   },
   description: {
     type: String,
-    required: [true, 'Lesson description is required']
+    required: [false, 'Lesson description is required']
   },
   videos: {
     type: [VideoSchema],
-    required: true
+    required: false
   },
   pdfFiles: {
     type: [String],
@@ -86,62 +87,64 @@ const WhoIsThisForSchema = new mongoose.Schema({
 
 
 const CourseDetailsSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: [true, 'Title field required']
-  },
-  overviewPoints: {
-    type: [OverviewPointSchema],
-    default: []
-  },
-  description: {
-    type: String,
-    required: [true, 'Description field required']
-  },
-  image: {
-    type: String,
-    default: ''
-  },
-  lessons: {
-    type: [LessonSchema],
-    default: []
-  },
-  header: {
-    type: String,
-    default: ''
-  },
-  videoUrl: {
-    type: String,
-    default: ''
-  },
-  whoIsThisFor: {
-    type: [WhoIsThisForSchema],
-    default: []
-  },
-  whatYouGet: {
-    type: [WhatYouGetSchema],
-    default: []
-  },
-  syllabus: {
-    type: String,
-    default: ''
-  },
-  price: {
-    type: Number,
-    default: 0
-  },
-  courseDetails: {
-    type: [
-      {
-        text: {
-          type: String,
-          required: true
+    title: {
+      type: String,
+      required: [true, 'Title field required']
+    },
+    overviewPoints: {
+      type: [OverviewPointSchema],
+      default: []
+    },
+    description: {
+      type: String,
+      required: [true, 'Description field required']
+    },
+    image: {
+      type: String,
+      default: ''
+    },
+    lessons: {
+      type: [LessonSchema],
+      default: []
+    },
+    header: {
+      type: String,
+      default: ''
+    },
+    videoUrl: {
+      type: String,
+      default: ''
+    },
+    whoIsThisFor: {
+      type: [WhoIsThisForSchema],
+      default: []
+    },
+    whatYouGet: {
+      type: [WhatYouGetSchema],
+      default: []
+    },
+    syllabus: {
+      type: String,
+      default: ''
+    },
+    price: {
+      type: Number,
+      default: 0
+    },
+    courseDetails: {
+      type: [
+        {
+          text: {
+            type: String,
+            required: true
+          }
         }
-      }
-    ],
-    default: []
-  }
-}, { timestamps: true });
+      ],
+      default: []
+    }
+  }, { timestamps: true });
+  
+  
 
 const CourseDetail = mongoose.model('CourseDetail', CourseDetailsSchema);
 
