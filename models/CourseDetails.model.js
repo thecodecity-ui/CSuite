@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-
 const VideoSchema = new mongoose.Schema({
   title: {
     type: String,
@@ -20,6 +19,18 @@ const VideoSchema = new mongoose.Schema({
   }
 }, { _id: false });
 
+const FileSchema = new mongoose.Schema({
+  type: {
+    type: String,
+    required: true,
+    enum: ['video', 'ppt', 'pdf']
+  },
+  link: {
+    type: String,
+    required: true
+  }
+}, { _id: false });
+
 const LessonSchema = new mongoose.Schema({
   lessonId: {
     type: Number,
@@ -27,32 +38,21 @@ const LessonSchema = new mongoose.Schema({
   },
   title: {
     type: String,
-    required: [false, 'Lesson title is required'],
     default: null
   },
   description: {
-    type: String,
-    required: [false, 'Lesson description is required']
+    type: String
   },
-  videos: {
-    type: [VideoSchema],
-    required: false
-  },
-  pdfFiles: {
-    type: [String],
-    default: []
-  },
-  pptFiles: {
-    type: [String],
+  files: {
+    type: [FileSchema],
     default: []
   },
   testId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Test',
-    default: null 
+    default: null
   }
 }, { _id: false });
-
 
 const OverviewPointSchema = new mongoose.Schema({
   heading: {
@@ -65,7 +65,6 @@ const OverviewPointSchema = new mongoose.Schema({
   }
 }, { _id: false });
 
-
 const WhatYouGetSchema = new mongoose.Schema({
   title: {
     type: String,
@@ -77,7 +76,6 @@ const WhatYouGetSchema = new mongoose.Schema({
   }
 }, { _id: false });
 
-
 const WhoIsThisForSchema = new mongoose.Schema({
   text: {
     type: String,
@@ -85,66 +83,52 @@ const WhoIsThisForSchema = new mongoose.Schema({
   }
 }, { _id: false });
 
-
 const CourseDetailsSchema = new mongoose.Schema({
-    title: {
-      type: String,
-      required: [true, 'Title field required']
-    },
-    overviewPoints: {
-      type: [OverviewPointSchema],
-      default: []
-    },
-    description: {
-      type: String,
-      required: [true, 'Description field required']
-    },
-    image: {
-      type: String,
-      default: ''
-    },
-    lessons: {
-      type: [LessonSchema],
-      default: []
-    },
-    header: {
-      type: String,
-      default: ''
-    },
-    videoUrl: {
-      type: String,
-      default: ''
-    },
-    whoIsThisFor: {
-      type: [WhoIsThisForSchema],
-      default: []
-    },
-    whatYouGet: {
-      type: [WhatYouGetSchema],
-      default: []
-    },
-    syllabus: {
-      type: String,
-      default: ''
-    },
-    price: {
-      type: Number,
-      default: 0
-    },
-    courseDetails: {
-      type: [
-        {
-          text: {
-            type: String,
-            required: true
-          }
-        }
-      ],
-      default: []
-    }
-  }, { timestamps: true });
-  
-  
+  title: {
+    type: String,
+    required: [true, 'Title field required']
+  },
+  overviewPoints: {
+    type: [OverviewPointSchema],
+    default: []
+  },
+  description: {
+    type: String,
+    required: [true, 'Description field required']
+  },
+  image: {
+    type: String,
+    default: ''
+  },
+  lessons: {
+    type: [LessonSchema],
+    default: []
+  },
+  header: {
+    type: String,
+    default: ''
+  },
+  videoUrl: {
+    type: String,
+    default: ''
+  },
+  whoIsThisFor: {
+    type: [WhoIsThisForSchema],
+    default: []
+  },
+  whatYouGet: {
+    type: [WhatYouGetSchema],
+    default: []
+  },
+  syllabus: {
+    type: String,
+    default: ''
+  },
+  price: {
+    type: Number,
+    default: 0
+  }
+}, { timestamps: true });
 
 const CourseDetail = mongoose.model('CourseDetail', CourseDetailsSchema);
 
