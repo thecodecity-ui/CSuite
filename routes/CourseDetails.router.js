@@ -4,13 +4,10 @@ const CourseDetail = require('../models/CourseDetails.model');
 
 const courseDetailsRouter = express.Router();
 
-
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-
 const bufferToBase64 = (buffer) => buffer.toString('base64');
-
 
 const parseJsonFields = (req, res, next) => {
   try {
@@ -31,7 +28,6 @@ const parseJsonFields = (req, res, next) => {
     res.status(400).json({ message: 'Invalid JSON in request body', error: error.message });
   }
 };
-
 
 courseDetailsRouter.post('/add', upload.single('image'), parseJsonFields, async (req, res) => {
   try {
@@ -71,7 +67,6 @@ courseDetailsRouter.post('/add', upload.single('image'), parseJsonFields, async 
   }
 });
 
-// Fetch all courses
 courseDetailsRouter.get('/', async (req, res) => {
   try {
     const courses = await CourseDetail.find();
@@ -80,7 +75,6 @@ courseDetailsRouter.get('/', async (req, res) => {
     res.status(500).json({ message: 'Error fetching courses', error: error.message });
   }
 });
-
 
 courseDetailsRouter.get('/:id', async (req, res) => {
   try {
@@ -94,7 +88,6 @@ courseDetailsRouter.get('/:id', async (req, res) => {
     res.status(500).json({ message: 'Error fetching course', error: error.message });
   }
 });
-
 
 courseDetailsRouter.put('/edit/:id', upload.single('image'), parseJsonFields, async (req, res) => {
   try {
@@ -141,7 +134,6 @@ courseDetailsRouter.put('/edit/:id', upload.single('image'), parseJsonFields, as
     res.status(500).json({ message: 'Error updating course', error: error.message });
   }
 });
-
 
 courseDetailsRouter.delete('/delete/:id', async (req, res) => {
   try {

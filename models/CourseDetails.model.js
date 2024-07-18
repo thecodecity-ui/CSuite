@@ -31,28 +31,75 @@ const FileSchema = new mongoose.Schema({
   }
 }, { _id: false });
 
-const LessonSchema = new mongoose.Schema({
-  lessonId: {
-    type: Number,
+
+const ChapterSchema = new mongoose.Schema({
+  title: {
+    type: String,
     required: true
   },
-  title: {
+  type: {
+    type: String,
+    required: true,
+    enum: ['video', 'ppt', 'pdf']
+  },
+  link: {
+    type: String,
+    required: true
+  },
+  duration: {
     type: String,
     default: null
   },
-  description: {
-    type: String
-  },
-  files: {
-    type: [FileSchema],
-    default: []
-  },
+  notes: {
+    type: String,
+    default: ''
+  }
+}, { _id: false });
+
+const LessonSchema = new mongoose.Schema({
   testId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Test',
     default: null
+  },
+  title: {
+    type: String,
+    required: true
+  },
+  description: {
+    type: String,
+    required: true
+  },
+  chapter: {
+    type: [ChapterSchema],
+    default: []
   }
 }, { _id: false });
+
+//const LessonSchema = new mongoose.Schema({
+//  lessonId: {
+//    type: Number,
+//    required: true
+//  },
+ // title: {
+ //  type: String,
+ //   default: null
+ // },
+ // description: {
+ //   type: String
+ // },
+ // files: {
+//  type: [FileSchema],
+ //   default: []
+ // },
+ // testId: {
+ //   type: mongoose.Schema.Types.ObjectId,
+ //   ref: 'Test',
+ //   default: null
+//  }
+//}, { _id: false });
+
+
 
 const OverviewPointSchema = new mongoose.Schema({
   heading: {
