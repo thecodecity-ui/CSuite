@@ -8,33 +8,39 @@ const app = express();
 
 // Enable CORS
 app.use(cors());
-
+app.use(express.urlencoded({ extended: false }))
 // Models
 const Contact = require('./models/Contact.model');
 // const CourseList = require('./models/CourseList.model');
 
 
 // Routers
-const contactRouter = require('./routes/Contact.router');
-//const courseListRouter = require('./routes/CourseList.router');
-const courseDetailsRouter = require('./routes/CourseDetails.router');
-const userRouter = require('./routes/User.router');
-const questionsRouter = require('./routes/Question.router');
+
+const contactRouter = require('./routes/Contact.router')
+
+const courseDetailsRouter = require('./routes/CourseDetails.router')
+const userRouter = require('./routes/User.router')
+const paymentRouter = require('./routes/Payment.router')
+const calenderRouter = require('./routes/Calender.router')
 const testRouter = require('./routes/Test.router');
+const newcourse = require('./routes/NewCourse.router');
+const UploadDriveRouter = require('./routes/UploadToDrive.router')
+const UploadVimeoRouter = require('./routes/UploadToVimeo.router')
+const CompleteVideo = require('./routes/CompletedVideo.router')
 
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+// app.use(bodyParser.json)
 
+app.use('/api/contact', contactRouter)
 
-
-// Use routers
-app.use('/api/contact', contactRouter);
-// app.use('/api/courseList', courseListRouter);
-app.use('/api/courseDetail', courseDetailsRouter);
-app.use('/api/user', userRouter);
-app.use('/api/questions', questionsRouter);
+app.use('/api/courseDetail', courseDetailsRouter)
+app.use('/api/user', userRouter)
+app.use('/api/payment', paymentRouter)
+app.use('/api/calender', calenderRouter)
 app.use('/api/tests', testRouter);
+app.use('/api/newcourse', newcourse);
+app.use('/api/uploadtodrive', UploadDriveRouter);
+app.use('/api/uploadtovimeo', UploadVimeoRouter);
+app.use('/api/completevideo', CompleteVideo);
 
 // Root route
 app.get('/', (req, res) => {
