@@ -64,7 +64,14 @@ console.log(req.files.video[0].originalname)
         let newurl = uri.split('/')[2]
       console.log('Your video URI is: ' + "https://vimeo.com/"+ newurl);
       res.status(200).json({success : true , videoCode : `${newurl}` , videoUrl : `https://player.vimeo.com/video/${newurl}`, duration : video_duration })
-      fs.unlinkSync(`./temp/${uniqueVideoName}`)
+      try{
+        fs.unlinkSync(`./temp/${uniqueVideoName}`)
+        console.log('deleted successfully')
+
+
+      }catch(e){
+        console.log("file already deleted unable to deleted")
+      }
     },
     function (bytes_uploaded, bytes_total) {
       var percentage = (bytes_uploaded / bytes_total * 100).toFixed(2)
@@ -74,13 +81,13 @@ console.log(req.files.video[0].originalname)
       console.log('Failed because: ' + error)
       res.status(500).json({success : false})
       fs.unlinkSync(`./temp/${uniqueVideoName}`)
+      console.log('deleted successfully')
 
     }
   )
 
 
 
-console.log('deleted successfully')
 }catch(e){
     res.status(500).json({success:false , error : e.message})
 }
