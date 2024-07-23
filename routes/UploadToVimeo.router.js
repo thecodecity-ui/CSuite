@@ -38,11 +38,22 @@ let vimeo_client = new Vimeo(process.env.VIMEO_CLIENT_ID , process.env.VIMEO_CLI
 
 UploadVimeoRouter.post('/',upload.fields([{ name: 'video' }]),async (req,res)=>{
 
-try{
+ try {
+        if (!req.files || !req.files.video || req.files.video.length === 0) {
+            return res.status(400).json({ success: false, error: 'No file uploaded' });
+        }
 
+        let file_name = `./temp/${uniqueVideoName}`;
 
+        if (!fs.existsSync(file_name)) {
+            return res.status(400).json({ success: false, error: 'File not found' });
+        }
 
-let file_name = `./temp/${uniqueVideoName}`
+        const stats = fs.statSync(file_name);
+        if (stats.size === 0) {
+            fs.unlinkSync(file_name);
+            return res.status(400).json({ success: false, error: 'Uploaded file is empty' });
+        }
 let video_duration = null
 getVideoDurationInSeconds(file_name).then((duration) => {
   let m = Math.floor(duration / 60);
