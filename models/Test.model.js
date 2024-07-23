@@ -16,7 +16,7 @@ const TestSchema = new mongoose.Schema({
 
   lessonId:{
     type : String ,
-    required : [true, 'LessonId field required']
+    required : [false, 'LessonId field required']
   } ,
 
   courseId:{
