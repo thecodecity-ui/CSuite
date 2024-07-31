@@ -232,4 +232,55 @@ userRouter.get('/progress/:userId/:courseId', async (req, res) => {
   }
 });
 
+
+
+router.get('/check', async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.query.email });
+    res.json(user);
+  } catch (err) {
+    console.log(err.stack);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+router.get('/fetchela', async (req, res) => {
+  try {
+    const ela = await ELA.findOne();  // Assuming ELA is another model
+    res.json(ela);
+  } catch (err) {
+    console.log(err.stack);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+router.get('/login', async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.query.email });
+    res.json(user);
+  } catch (err) {
+    console.log(err.stack);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+router.post('/signup', async (req, res) => {
+  console.log(req.body);
+  try {
+    const newUser = new User({
+      name: req.body.name,
+      email: req.body.email,
+      linkedin: req.body.linkedin,
+      password: req.body.password,
+    });
+    await newUser.save();
+    res.json({ message: 'Data received successfully!' });
+  } catch (err) {
+    console.log(err.stack);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+
 module.exports = userRouter;

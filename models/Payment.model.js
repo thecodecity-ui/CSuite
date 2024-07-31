@@ -37,3 +37,20 @@ const PaymentSchema = mongoose.Schema(
 const Payment = mongoose.model("payment",PaymentSchema)
 
 module.exports = Payment
+
+
+
+const stripe = require("stripe")("sk_test_51PUVZZRrG0ZkGYrrIq8xX3O1fcIQ4xrvYmHRM9m6oFSNjEZL0AcRnLmnAx7ZORfMLH0UwqEDQGlcFlfv7Hm7JJoN00nHLBHIxq");
+
+async function createCheckoutSession(item) {
+    const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        line_items: item,
+        mode: "payment",
+        success_url: `https://csuite-academy.netlify.app/home/courseDetails/+req.body.id+?status=success`,
+        cancel_url: `https://csuite-academy.netlify.app/home/courseDetails/+req.body.id+?status=failed`
+    });
+    return session.id;
+}
+
+module.exports = { createCheckoutSession };

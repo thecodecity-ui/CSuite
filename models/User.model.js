@@ -161,7 +161,10 @@ const UserSchema = new mongoose.Schema({
     unique: true,
     sparse: true 
   },
-  courseProgress: [CourseProgressSchema]
+  courseProgress: [CourseProgressSchema],
+  type: { type: String, default: 'user' },
+  firstLogin: { type: Boolean, default: true },
+  elaComplete: { type: Boolean, default: false },
 }, { timestamps: true });
 
 // Hash the password

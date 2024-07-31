@@ -2,6 +2,8 @@ const {Router} = require('express')
 const paymentRouter = Router()
 const Payment = require('../models/Payment.model')
 
+const { createCheckoutSession } = require('../models/Payment.model');
+
 paymentRouter.get('/', async(req,res)=>{
     try{
         
@@ -54,5 +56,31 @@ paymentRouter.post('/', async(req,res)=>{
 })
 
 
+
+
+
+
+paymentRouter.post('/create-checkout-session', async (req, res) => {
+    try {
+        const item = [
+            {
+                price_data: {
+                    currency: 'usd',
+                    product_data: {
+                        name: req.body.name,
+                    },
+                    unit_amount: Math.round(req.body.price * 100),
+                },
+                quantity: 1,
+            },
+        ];
+
+        const sessionId = await createCheckoutSession(item);
+        res.json({ id: sessionId });
+    } catch (err) {
+        console.log(err.stack);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 
 module.exports = paymentRouter;
