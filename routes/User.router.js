@@ -3,6 +3,7 @@ const multer = require('multer');
 const bcrypt = require('bcrypt');
 const User = require('../models/User.model');
 const CourseDetail = require('../models/CourseDetails.model');
+const { findUserByEmail, insertUser } = require('../models/User.model');
 
 const userRouter = Router();
 
@@ -234,17 +235,17 @@ userRouter.get('/progress/:userId/:courseId', async (req, res) => {
 
 
 
-userRouterrouter.get('/check', async (req, res) => {
+userRouter.get('/check', async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.query.email });
-    res.json(user);
-  } catch (err) {
+    const user = await findUserByEmail(req.query.email);
+    res.json(JSON.stringify(user));
+} catch (err) {
     console.log(err.stack);
     res.status(500).json({ error: 'Internal Server Error' });
-  }
+}
 });
 
-userRouterrouter.get('/fetchela', async (req, res) => {
+userRouter.get('/fetchela', async (req, res) => {
   try {
     const ela = await ELA.findOne();  // Assuming ELA is another model
     res.json(ela);
@@ -254,33 +255,35 @@ userRouterrouter.get('/fetchela', async (req, res) => {
   }
 });
 
-userRouterrouter.get('/login', async (req, res) => {
+userRouter.get('/login', async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.query.email });
-    res.json(user);
-  } catch (err) {
+    const user = await findUserByEmail(req.query.email);
+    res.json(JSON.stringify(user));
+} catch (err) {
     console.log(err.stack);
     res.status(500).json({ error: 'Internal Server Error' });
-  }
+}
 });
 
-userRouterrouter.post('/signup', async (req, res) => {
+userRouter.post('/signup', async (req, res) => {
   console.log(req.body);
-  try {
-    const newUser = new User({
-      name: req.body.name,
-      email: req.body.email,
-      linkedin: req.body.linkedin,
-      password: req.body.password,
-    });
-    await newUser.save();
-    res.json({ message: 'Data received successfully!' });
-  } catch (err) {
-    console.log(err.stack);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
+    try {
+        const user = {
+            "name": req.body.name,
+            "email": req.body.email,
+            "linkedin": req.body.linkedin,
+            "password": req.body.password,
+            "type": "user",
+            "first-login": true,
+            "elacomplete": false,
+        };
+        await insertUser(user);
+        res.json({ message: 'Data received successfully!' });
+    } catch (err) {
+        console.log(err.stack);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
 });
-
 
 
 module.exports = userRouter;
