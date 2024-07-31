@@ -38,11 +38,22 @@ let vimeo_client = new Vimeo(process.env.VIMEO_CLIENT_ID , process.env.VIMEO_CLI
 
 UploadVimeoRouter.post('/',upload.fields([{ name: 'video' }]),async (req,res)=>{
 
-try{
+ try {
+        if (!req.files || !req.files.video || req.files.video.length === 0) {
+            return res.status(400).json({ success: false, error: 'No file uploaded' });
+        }
 
+        let file_name = `./temp/${uniqueVideoName}`;
 
+        if (!fs.existsSync(file_name)) {
+            return res.status(400).json({ success: false, error: 'File not found' });
+        }
 
-let file_name = `./temp/${uniqueVideoName}`
+        const stats = fs.statSync(file_name);
+        if (stats.size === 0) {
+            fs.unlinkSync(file_name);
+            return res.status(400).json({ success: false, error: 'Uploaded file is empty' });
+        }
 let video_duration = null
 getVideoDurationInSeconds(file_name).then((duration) => {
   let m = Math.floor(duration / 60);
@@ -64,7 +75,14 @@ console.log(req.files.video[0].originalname)
         let newurl = uri.split('/')[2]
       console.log('Your video URI is: ' + "https://vimeo.com/"+ newurl);
       res.status(200).json({success : true , videoCode : `${newurl}` , videoUrl : `https://player.vimeo.com/video/${newurl}`, duration : video_duration })
-      fs.unlinkSync(`./temp/${uniqueVideoName}`)
+      try{
+        fs.unlinkSync(`./temp/${uniqueVideoName}`)
+        console.log('deleted successfully')
+
+
+      }catch(e){
+        console.log("file already deleted unable to deleted")
+      }
     },
     function (bytes_uploaded, bytes_total) {
       var percentage = (bytes_uploaded / bytes_total * 100).toFixed(2)
@@ -73,14 +91,22 @@ console.log(req.files.video[0].originalname)
     function (error) {
       console.log('Failed because: ' + error)
       res.status(500).json({success : false})
-      fs.unlinkSync(`./temp/${uniqueVideoName}`)
+
+      try{
+        fs.unlinkSync(`./temp/${uniqueVideoName}`)
+        console.log('deleted successfully')
+
+
+      }catch(e){
+        console.log("file already deleted unable to deleted")
+      }
+
 
     }
   )
 
 
 
-console.log('deleted successfully')
 }catch(e){
     res.status(500).json({success:false , error : e.message})
 }
