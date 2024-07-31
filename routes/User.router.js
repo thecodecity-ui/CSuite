@@ -234,7 +234,7 @@ userRouter.get('/progress/:userId/:courseId', async (req, res) => {
 
 
 
-router.get('/check', async (req, res) => {
+userRouterrouter.get('/check', async (req, res) => {
   try {
     const user = await User.findOne({ email: req.query.email });
     res.json(user);
@@ -244,7 +244,7 @@ router.get('/check', async (req, res) => {
   }
 });
 
-router.get('/fetchela', async (req, res) => {
+userRouterrouter.get('/fetchela', async (req, res) => {
   try {
     const ela = await ELA.findOne();  // Assuming ELA is another model
     res.json(ela);
@@ -254,7 +254,7 @@ router.get('/fetchela', async (req, res) => {
   }
 });
 
-router.get('/login', async (req, res) => {
+userRouterrouter.get('/login', async (req, res) => {
   try {
     const user = await User.findOne({ email: req.query.email });
     res.json(user);
@@ -264,7 +264,7 @@ router.get('/login', async (req, res) => {
   }
 });
 
-router.post('/signup', async (req, res) => {
+userRouterrouter.post('/signup', async (req, res) => {
   console.log(req.body);
   try {
     const newUser = new User({
