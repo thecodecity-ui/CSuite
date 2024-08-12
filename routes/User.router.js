@@ -291,23 +291,20 @@ userRouter.post('/signup', async (req, res) => {
   }
 });
 
-// Login Route
 userRouter.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email: req.body.email }).select('+password');
     if (!user) {
-      return res.status(400).json({ error: 'Invalid credentials' });
+      return res.status(400).json({ error: 'Invalid email or password' });
     }
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ error: 'Invalid credentials' });
-    }
-    const token = jwt.sign({ userId: user._id }, 'your_jwt_secret', {
-      expiresIn: '1h'
-    });
 
-    res.json({ message: 'Login successful', token });
+    const isMatch = await bcrypt.compare(req.body.password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: 'Invalid email or password' });
+    }
+
+    // Optionally, return user details or a JWT token
+    res.json({ message: 'Login successful', user: { email: user.email, name: user.name } });
   } catch (err) {
     console.log(err.stack);
     res.status(500).json({ error: 'Internal Server Error' });
