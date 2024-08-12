@@ -302,8 +302,6 @@ userRouter.post('/login', async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({ error: 'Invalid email or password' });
     }
-
-    // Optionally, return user details or a JWT token
     res.json({ message: 'Login successful', user: { email: user.email, name: user.name } });
   } catch (err) {
     console.log(err.stack);
