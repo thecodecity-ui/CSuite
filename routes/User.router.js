@@ -302,7 +302,10 @@ userRouter.post('/login', async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({ error: 'Invalid email or password' });
     }
-    res.json({ message: 'Login successful', user: { email: user.email, name: user.name } });
+    const userData = user.toObject();
+    delete userData.password;
+
+    res.json({ message: 'Login successful', user: userData });
   } catch (err) {
     console.log(err.stack);
     res.status(500).json({ error: 'Internal Server Error' });
