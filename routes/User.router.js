@@ -234,17 +234,6 @@ userRouter.get('/progress/:userId/:courseId', async (req, res) => {
 });
 
 
-
-userRouter.get('/check', async (req, res) => {
-  try {
-    const user = await findUserByEmail(req.query.email);
-    res.json(JSON.stringify(user));
-} catch (err) {
-    console.log(err.stack);
-    res.status(500).json({ error: 'Internal Server Error' });
-}
-});
-
 userRouter.get('/fetchela', async (req, res) => {
   try {
     const ela = await ELA.findOne();  // Assuming ELA is another model
@@ -255,34 +244,68 @@ userRouter.get('/fetchela', async (req, res) => {
   }
 });
 
-userRouter.get('/login', async (req, res) => {
+userRouter.get('/check', async (req, res) => {
   try {
-    const user = await findUserByEmail(req.query.email);
-    res.json(JSON.stringify(user));
-} catch (err) {
+    const user = await User.findOne({ email: req.query.email });
+    if (user) {
+      res.json(user);
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+  } catch (err) {
     console.log(err.stack);
     res.status(500).json({ error: 'Internal Server Error' });
-}
+  }
 });
 
-userRouter.post('/signup', async (req, res) => {
-  console.log(req.body);
-    try {
-        const user = {
-            "name": req.body.name,
-            "email": req.body.email,
-            "linkedin": req.body.linkedin,
-            "password": req.body.password,
-            "type": "user",
-            "first-login": true,
-            "elacomplete": false,
-        };
-        await insertUser(user);
-        res.json({ message: 'Data received successfully!' });
-    } catch (err) {
-        console.log(err.stack);
-        res.status(500).json({ error: 'Internal Server Error' });
+// Login route
+userRouter.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email }).select('+password');
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
     }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: 'Invalid credentials' });
+    }
+
+    res.json({ message: 'Login successful', user });
+  } catch (err) {
+    console.log(err.stack);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Signup route
+userRouter.post('/signup', async (req, res) => {
+  try {
+    const { name, email, linkedin, password } = req.body;
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: 'User already exists' });
+    }
+
+    const newUser = new User({
+      name,
+      email,
+      linkedIn: linkedin,
+      password,
+      type: 'user',
+      firstLogin: true,
+      elaComplete: false,
+    });
+
+    await newUser.save();
+    res.json({ message: 'Signup successful', user: newUser });
+  } catch (err) {
+    console.log(err.stack);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 
