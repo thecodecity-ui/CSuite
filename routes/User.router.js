@@ -246,17 +246,23 @@ userRouter.get('/fetchela', async (req, res) => {
 
 userRouter.get('/check', async (req, res) => {
   try {
+    if (!req.query.email) {
+      return res.status(400).json({ error: 'Email query parameter is required' });
+    }
+
     const user = await User.findOne({ email: req.query.email });
+
     if (user) {
       res.json(user);
     } else {
       res.status(404).json({ message: 'User not found' });
     }
   } catch (err) {
-    console.log(err.stack);
+    console.error('Error in /check route:', err);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 
 // Login route
 userRouter.post('/login', async (req, res) => {
