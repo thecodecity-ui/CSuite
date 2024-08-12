@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const multer = require('multer');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const User = require('../models/User.model');
 const CourseDetail = require('../models/CourseDetails.model');
 const { findUserByEmail, insertUser } = require('../models/User.model');
@@ -264,38 +265,13 @@ userRouter.get('/check', async (req, res) => {
 });
 
 
-// Login route
-userRouter.post('/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email }).select('+password');
-    
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ error: 'Invalid credentials' });
-    }
-
-    res.json({ message: 'Login successful', user });
-  } catch (err) {
-    console.log(err.stack);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-// Signup route
 userRouter.post('/signup', async (req, res) => {
   try {
     const { name, email, linkedin, password } = req.body;
-
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ error: 'User already exists' });
     }
-
     const newUser = new User({
       name,
       email,
@@ -306,8 +282,32 @@ userRouter.post('/signup', async (req, res) => {
       elaComplete: false,
     });
 
+    // Save the user
     await newUser.save();
     res.json({ message: 'Signup successful', user: newUser });
+  } catch (err) {
+    console.log(err.stack);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Login Route
+userRouter.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email }).select('+password');
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid credentials' });
+    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: 'Invalid credentials' });
+    }
+    const token = jwt.sign({ userId: user._id }, 'your_jwt_secret', {
+      expiresIn: '1h'
+    });
+
+    res.json({ message: 'Login successful', token });
   } catch (err) {
     console.log(err.stack);
     res.status(500).json({ error: 'Internal Server Error' });
