@@ -24,7 +24,7 @@ const userRouter = require('./routes/User.router')
 const paymentRouter = require('./routes/Payment.router')
 const calenderRouter = require('./routes/Calender.router')
 const testRouter = require('./routes/Test.router');
-const questionRouter = require('./routes/Question.router')
+const router = require('./routes/Question.router')
 const UploadDriveRouter = require('./routes/UploadToDrive.router')
 const UploadVimeoRouter = require('./routes/UploadToVimeo.router')
 const CompleteVideo = require('./routes/CompletedVideo.router')
@@ -38,7 +38,7 @@ app.use('/api/user', userRouter)
 app.use('/api/payment', paymentRouter)
 app.use('/api/calender', calenderRouter)
 app.use('/api/tests', testRouter);
-app.use('/api/question', questionRouter);
+app.use('/api/question', router);
 app.use('/api/uploadtodrive', UploadDriveRouter);
 app.use('/api/uploadtovimeo', UploadVimeoRouter);
 app.use('/api/completevideo', CompleteVideo);
