@@ -250,7 +250,7 @@ userRouter.get('/check', async (req, res) => {
     if (!req.query.email) {
       return res.status(400).json({ error: 'Email query parameter is required' });
     }
-
+    console.log(req.query.email);
     const user = await User.findOne({ email: req.query.email });
 
     if (user) {
