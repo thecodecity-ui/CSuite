@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const multer = require('multer');
 const bcrypt = require('bcrypt');
-//const jwt = require('jsonwebtoken');
+//const jwt = require('jsonwebtoken'); 
 const User = require('../models/User.model');
 const CourseDetail = require('../models/CourseDetails.model');
 const { findUserByEmail, insertUser } = require('../models/User.model');
