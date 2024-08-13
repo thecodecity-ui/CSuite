@@ -246,31 +246,29 @@ userRouter.get('/fetchela', async (req, res) => {
 });
 
 userRouter.get('/check', async (req, res) => {
-  // try {
-    // if (!req.query.email) {
-    //   return res.status(400).json({ error: 'Email query parameter is required' });
-    // }
-    // console.log(req.query.email);
-    // const user = await User.findOne({ email: req.query.email });
+  try {
+    if (!req.query.email) {
+      return res.status(400).json({ error: 'Email query parameter is required' });
+    }
+    console.log(req.query.email);
+    const user = await User.findOne({ email: req.query.email });
 
-    // if (user) {
-    //   res.json(user);
-    // } else {
-    //   res.status(404).json({ message: 'User not found' });
-    // }
-  //   console.log(req.query.email)
-  //   console.log("route --- check")
-  // } catch (err) {
-  //   console.error('Error in /check route:', err);
-  //   res.status(500).json({ error: 'Internal Server Error' });
-  // }
-  // res.json({message : "Route check"})
+    if (user) {
+      res.json(user);
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+    console.log(req.query.email)
+    console.log("route --- check")
+  } catch (err) {
+    console.error('Error in /check route:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+  res.json({message : "Route check"})
   console.log("Check")
 });
 
-userRouter.get('/getuserinfo' , async(req,res)=>{
-  res.send("all set")
-})
+
 
 userRouter.post('/signup', async (req, res) => {
   try {
