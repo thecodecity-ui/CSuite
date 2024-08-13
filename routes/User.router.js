@@ -264,7 +264,7 @@ userRouter.get('/check', async (req, res) => {
     console.error('Error in /check route:', err);
     res.status(500).json({ error: 'Internal Server Error' });
   }
-  res.json({message : "Route check"})
+
   console.log("Check")
 });
 
