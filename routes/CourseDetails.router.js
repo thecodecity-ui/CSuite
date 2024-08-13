@@ -41,7 +41,7 @@ courseDetailsRouter.post('/add', upload.single('image'), parseJsonFields, async 
       whoIsThisFor,
       whatYouGet,
       syllabus,
-      price: Number(price)
+      price
     } = req.body;
     const image = req.file ? bufferToBase64(req.file.buffer) : '';
 
@@ -56,7 +56,7 @@ courseDetailsRouter.post('/add', upload.single('image'), parseJsonFields, async 
       whoIsThisFor,
       whatYouGet,
       syllabus,
-      price
+      price: Number(price)
     });
 
     await newCourse.save();
@@ -102,7 +102,7 @@ courseDetailsRouter.put('/edit/:id', upload.single('image'), parseJsonFields, as
       whoIsThisFor,
       whatYouGet,
       syllabus,
-      price : Number(price)
+      price
     } = req.body;
     const image = req.file ? bufferToBase64(req.file.buffer) : undefined;
 
@@ -119,7 +119,7 @@ courseDetailsRouter.put('/edit/:id', upload.single('image'), parseJsonFields, as
         whoIsThisFor,
         whatYouGet,
         syllabus,
-        price
+        price : Number(price)
       },
       { new: true }
     );
