@@ -41,7 +41,7 @@ courseDetailsRouter.post('/add', upload.single('image'), parseJsonFields, async 
       whoIsThisFor,
       whatYouGet,
       syllabus,
-      price
+      price: Number(price)
     } = req.body;
     const image = req.file ? bufferToBase64(req.file.buffer) : '';
 
@@ -102,7 +102,7 @@ courseDetailsRouter.put('/edit/:id', upload.single('image'), parseJsonFields, as
       whoIsThisFor,
       whatYouGet,
       syllabus,
-      price
+      price : Number(price)
     } = req.body;
     const image = req.file ? bufferToBase64(req.file.buffer) : undefined;
 
