@@ -268,6 +268,22 @@ userRouter.get('/check', async (req, res) => {
   console.log("Check")
 });
 
+userRouter.post('/checks', async (req, res) => {
+  try {
+    const { email } = req.body;
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      return res.status(200).json({ exists: true, message: 'Email already exists in the database' });
+    } else {
+      return res.status(200).json({ exists: false, message: 'Email is available' });
+    }
+  } catch (err) {
+    console.log(err.stack);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 
 
 userRouter.post('/signup', async (req, res) => {
