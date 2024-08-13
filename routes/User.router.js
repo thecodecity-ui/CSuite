@@ -23,7 +23,7 @@ userRouter.get('/', async (req, res) => {
 });
 
 
-userRouter.get('/:id', async (req, res) => {
+userRouter.get('/user/:id', async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
