@@ -268,6 +268,9 @@ userRouter.get('/check', async (req, res) => {
   console.log("Check")
 });
 
+userRouter.get('/getuserinfo' , async(req,res)=>{
+  res.send("all set")
+})
 
 userRouter.post('/signup', async (req, res) => {
   try {
