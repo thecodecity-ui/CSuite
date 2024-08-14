@@ -28,6 +28,23 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+router.get('/:id/sections/:sectionNumber/duration', async (req, res) => {
+  const { id, sectionNumber } = req.params;
+
+  try {
+    const questionDoc = await Question.findById(id);
+    if (!questionDoc) {
+      return res.status(404).json({ message: 'Document not found' });
+    }
+    const section = questionDoc.sections.find(s => s.section === parseInt(sectionNumber));
+    if (!section) {
+      return res.status(404).json({ message: 'Section not found' });
+    }
+    res.status(200).json({ duration: section.duration });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 router.post('/', async (req, res) => {
   try {
     const newQuestion = new Question(req.body);
