@@ -56,6 +56,26 @@ router.post('/:id/sections', async (req, res) => {
   }
 });
 
+router.post('/:id/sections/:sectionId/questions', async (req, res) => {
+  try {
+    const { questionId, sectionNumber } = req.params;
+    const { question, options, answer, description, difficulty, tags } = req.body;
+
+    const questionDoc = await Question.findById(questionId);
+    if (!questionDoc) {
+      return res.status(404).json({ message: 'Question not found' });
+    }
+    const section = questionDoc.sections.find(sec => sec.section === parseInt(sectionNumber));
+    if (!section) {
+      return res.status(404).json({ message: 'Section not found' });
+    }
+    section.questions.push({ question, options, answer, description, difficulty, tags });
+    const updatedQuestion = await questionDoc.save();
+    res.status(201).json(updatedQuestion);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 router.put('/:id/sections/:sectionId/questions', async (req, res) => {
   const { id, sectionId } = req.params;
