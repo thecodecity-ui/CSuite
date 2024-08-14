@@ -81,6 +81,31 @@ router.post('/:questionId/sections/:sectionNumber/questions', async (req, res) =
   }
 });
 
+// Update duration for a specific section
+router.put('/:questionId/sections/:sectionId/duration', async (req, res) => {
+  const { questionId, sectionId } = req.params;
+  const { hours, minutes } = req.body;
+
+  try {
+    // Find the question document
+    const questionDoc = await Question.findById(questionId);
+    if (!questionDoc) {
+      return res.status(404).json({ message: 'Question document not found' });
+    }
+
+    const section = questionDoc.sections.id(sectionId);
+    if (!section) {
+      return res.status(404).json({ message: 'Section not found' });
+    }
+    section.duration.hours = hours;
+    section.duration.minutes = minutes;
+
+    await questionDoc.save();
+    res.status(200).json(questionDoc);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 router.put('/:id/sections/:sectionId/questions', async (req, res) => {
   const { id, sectionId } = req.params;
