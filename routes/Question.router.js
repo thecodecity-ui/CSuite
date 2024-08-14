@@ -87,19 +87,16 @@ router.put('/:questionId/sections/:sectionNumber/duration', async (req, res) => 
   const { hours, minutes } = req.body;
 
   try {
-    // Find the question document
     const questionDoc = await Question.findById(questionId);
     if (!questionDoc) {
       return res.status(404).json({ message: 'Question document not found' });
     }
 
-    // Find the section by section number
     const section = questionDoc.sections.find(s => s.section === parseInt(sectionNumber));
     if (!section) {
       return res.status(404).json({ message: 'Section not found' });
     }
 
-    // Update the duration
     section.duration.hours = hours;
     section.duration.minutes = minutes;
 
@@ -110,8 +107,9 @@ router.put('/:questionId/sections/:sectionNumber/duration', async (req, res) => 
   }
 });
 
-router.put('/:id/sections/:sectionId/questions', async (req, res) => {
-  const { id, sectionId } = req.params;
+// Add a new question to a specific section
+router.put('/:id/sections/:sectionNumber/questions', async (req, res) => {
+  const { id, sectionNumber } = req.params;
   const newQuestion = req.body;
 
   try {
@@ -120,7 +118,7 @@ router.put('/:id/sections/:sectionId/questions', async (req, res) => {
       return res.status(404).json({ message: 'Document not found' });
     }
 
-    const section = questionDoc.sections.find(s => s.section === parseInt(sectionId));
+    const section = questionDoc.sections.find(s => s.section === parseInt(sectionNumber));
     if (!section) {
       return res.status(404).json({ message: 'Section not found' });
     }
@@ -133,9 +131,9 @@ router.put('/:id/sections/:sectionId/questions', async (req, res) => {
   }
 });
 
-
-router.put('/:id/sections/:sectionId/questions/:questionIndex', async (req, res) => {
-  const { id, sectionId, questionIndex } = req.params;
+// Update a specific question in a section
+router.put('/:id/sections/:sectionNumber/questions/:questionIndex', async (req, res) => {
+  const { id, sectionNumber, questionIndex } = req.params;
   const updatedQuestion = req.body;
 
   try {
@@ -144,7 +142,7 @@ router.put('/:id/sections/:sectionId/questions/:questionIndex', async (req, res)
       return res.status(404).json({ message: 'Document not found' });
     }
 
-    const section = questionDoc.sections.find(s => s.section === parseInt(sectionId));
+    const section = questionDoc.sections.find(s => s.section === parseInt(sectionNumber));
     if (!section) {
       return res.status(404).json({ message: 'Section not found' });
     }
@@ -162,8 +160,8 @@ router.put('/:id/sections/:sectionId/questions/:questionIndex', async (req, res)
 });
 
 
-router.delete('/:id/sections/:sectionId/questions/:questionIndex', async (req, res) => {
-  const { id, sectionId, questionIndex } = req.params;
+router.delete('/:id/sections/:sectionNumber/questions/:questionIndex', async (req, res) => {
+  const { id, sectionNumber, questionIndex } = req.params;
 
   try {
     const questionDoc = await Question.findById(id);
@@ -171,7 +169,7 @@ router.delete('/:id/sections/:sectionId/questions/:questionIndex', async (req, r
       return res.status(404).json({ message: 'Document not found' });
     }
 
-    const section = questionDoc.sections.find(s => s.section === parseInt(sectionId));
+    const section = questionDoc.sections.find(s => s.section === parseInt(sectionNumber));
     if (!section) {
       return res.status(404).json({ message: 'Section not found' });
     }
@@ -189,8 +187,8 @@ router.delete('/:id/sections/:sectionId/questions/:questionIndex', async (req, r
 });
 
 
-router.delete('/:id/sections/:sectionId', async (req, res) => {
-  const { id, sectionId } = req.params;
+router.delete('/:id/sections/:sectionNumber', async (req, res) => {
+  const { id, sectionNumber } = req.params;
 
   try {
     const questionDoc = await Question.findById(id);
@@ -198,7 +196,7 @@ router.delete('/:id/sections/:sectionId', async (req, res) => {
       return res.status(404).json({ message: 'Document not found' });
     }
 
-    const sectionIndex = questionDoc.sections.findIndex(s => s.section === parseInt(sectionId));
+    const sectionIndex = questionDoc.sections.findIndex(s => s.section === parseInt(sectionNumber));
     if (sectionIndex !== -1) {
       questionDoc.sections.splice(sectionIndex, 1);
       await questionDoc.save();
