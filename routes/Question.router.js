@@ -81,34 +81,34 @@ router.post('/:questionId/sections/:sectionNumber/questions', async (req, res) =
   }
 });
 
-router.put('/:questionId/sections/:sectionId/duration', async (req, res) => {
-  const { questionId, sectionId } = req.params;
+// Update duration for a specific section
+router.put('/:questionId/sections/:sectionNumber/duration', async (req, res) => {
+  const { questionId, sectionNumber } = req.params;
   const { hours, minutes } = req.body;
 
   try {
+    // Find the question document
     const questionDoc = await Question.findById(questionId);
     if (!questionDoc) {
-      console.log(`Question document with ID ${questionId} not found`);
       return res.status(404).json({ message: 'Question document not found' });
     }
 
-    console.log('Sections:', questionDoc.sections);
-    const section = questionDoc.sections.id(sectionId);
+    // Find the section by section number
+    const section = questionDoc.sections.find(s => s.section === parseInt(sectionNumber));
     if (!section) {
-      console.log(`Section with ID ${sectionId} not found in question document`);
       return res.status(404).json({ message: 'Section not found' });
     }
+
+    // Update the duration
     section.duration.hours = hours;
     section.duration.minutes = minutes;
 
     await questionDoc.save();
     res.status(200).json(questionDoc);
   } catch (err) {
-    console.error('Error updating section duration:', err.message);
     res.status(500).json({ message: err.message });
   }
 });
-
 
 router.put('/:id/sections/:sectionId/questions', async (req, res) => {
   const { id, sectionId } = req.params;
