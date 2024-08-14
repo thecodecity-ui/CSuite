@@ -28,6 +28,15 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+router.post('/', async (req, res) => {
+  try {
+    const newQuestion = new Question(req.body);
+    const savedQuestion = await newQuestion.save();
+    res.status(201).json(savedQuestion);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
 
 router.post('/:id/sections', async (req, res) => {
   const { id } = req.params;
