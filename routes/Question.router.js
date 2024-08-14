@@ -64,7 +64,7 @@ router.post('/:questionId/sections/:sectionNumber/questions', async (req, res) =
   try {
     const questionDoc = await Question.findById(questionId);
     if (!questionDoc) {
-      return res.status(404).json({ message: 'Question not found' });
+      return res.status(404).json({ message: 'Question document not found' });
     }
 
     const section = questionDoc.sections.find(sec => sec.section === parseInt(sectionNumber));
@@ -80,6 +80,7 @@ router.post('/:questionId/sections/:sectionNumber/questions', async (req, res) =
     res.status(500).json({ message: err.message });
   }
 });
+
 
 router.put('/:id/sections/:sectionId/questions', async (req, res) => {
   const { id, sectionId } = req.params;
