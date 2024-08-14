@@ -4,11 +4,21 @@ const questionSchema = new mongoose.Schema({
   sections: [
     {
       section: Number,
+      duration: { 
+        hours: Number, 
+        minutes: Number 
+      }, 
       questions: [
         {
           question: String,
           options: [String],
-          answer: String
+          answer: String,
+          description: String, 
+          difficulty: { 
+            type: String, 
+            enum: ['Easy', 'Medium', 'Hard'] 
+          }, 
+          tags: [String] 
         }
       ]
     }
