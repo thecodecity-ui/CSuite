@@ -8,17 +8,17 @@ const questionSchema = new mongoose.Schema({
         hours: Number, 
         minutes: Number 
       }, 
+      difficulty: { 
+        type: String, 
+        enum: ['Easy', 'Medium', 'Hard'] 
+      }, 
+      tags: [String],
+      description: String,
       questions: [
         {
           question: String,
           options: [String],
           answer: String,
-          description: String, 
-          difficulty: { 
-            type: String, 
-            enum: ['Easy', 'Medium', 'Hard'] 
-          }, 
-          tags: [String] 
         }
       ]
     }
