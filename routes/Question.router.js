@@ -190,6 +190,31 @@ router.put('/:id/sections/:sectionNumber/questions/:questionIndex', async (req, 
 });
 
 
+router.delete('/:id/sections/:sectionNumber/questions', async (req, res) => {
+  const { id, sectionNumber } = req.params;
+
+  try {
+    const questionDoc = await Question.findById(id);
+    if (!questionDoc) {
+      return res.status(404).json({ message: 'Document not found' });
+    }
+
+
+    const section = questionDoc.sections.find(s => s.section === parseInt(sectionNumber));
+    if (!section) {
+      return res.status(404).json({ message: 'Section not found' });
+    }
+
+    section.questions = [];
+    await questionDoc.save();
+
+    res.status(200).json({ message: 'All questions in the section have been deleted', section });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+
 router.delete('/:id/sections/:sectionNumber/questions/:questionIndex', async (req, res) => {
   const { id, sectionNumber, questionIndex } = req.params;
 
