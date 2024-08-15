@@ -138,7 +138,7 @@ router.put('/:id/sections/:sectionNumber/details', async (req, res) => {
 
 router.put('/:id/sections/:sectionNumber/questions', async (req, res) => {
   const { id, sectionNumber } = req.params;
-  const { question, options, answer } = req.body; // Question data to update
+  const { question, options, answer } = req.body;
 
   try {
     const questionDoc = await Question.findById(id);
