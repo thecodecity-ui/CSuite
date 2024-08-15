@@ -124,8 +124,6 @@ router.put('/:id/sections/:sectionNumber/details', async (req, res) => {
     if (!section) {
       return res.status(404).json({ message: 'Section not found' });
     }
-
-    // Update section details
     if (duration) section.duration = duration;
     if (difficulty) section.difficulty = difficulty;
     if (tags) section.tags = tags;
@@ -138,6 +136,35 @@ router.put('/:id/sections/:sectionNumber/details', async (req, res) => {
   }
 });
 
+router.put('/:id/sections/:sectionNumber/questions', async (req, res) => {
+  const { id, sectionNumber } = req.params;
+  const { question, updatedQuestion } = req.body; /
+
+  try {
+    const questionDoc = await Question.findById(id);
+    if (!questionDoc) {
+      return res.status(404).json({ message: 'Document not found' });
+    }
+
+    const section = questionDoc.sections.find(s => s.section === parseInt(sectionNumber));
+    if (!section) {
+      return res.status(404).json({ message: 'Section not found' });
+    }
+
+    const questionIndex = section.questions.findIndex(q => q.question === question);
+    if (questionIndex === -1) {
+      return res.status(404).json({ message: 'Question not found' });
+    }
+
+    // Update the question
+    section.questions[questionIndex] = { ...section.questions[questionIndex], ...updatedQuestion };
+
+    await questionDoc.save();
+    res.status(200).json(questionDoc);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 
 router.put('/:id/sections/:sectionNumber/questions/:questionIndex', async (req, res) => {
