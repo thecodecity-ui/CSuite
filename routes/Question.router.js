@@ -138,7 +138,7 @@ router.put('/:id/sections/:sectionNumber/details', async (req, res) => {
 
 router.put('/:id/sections/:sectionNumber/questions', async (req, res) => {
   const { id, sectionNumber } = req.params;
-  const { question, updatedQuestion } = req.body; /
+  const { question, options, answer } = req.body; // Question data to update
 
   try {
     const questionDoc = await Question.findById(id);
@@ -151,20 +151,20 @@ router.put('/:id/sections/:sectionNumber/questions', async (req, res) => {
       return res.status(404).json({ message: 'Section not found' });
     }
 
-    const questionIndex = section.questions.findIndex(q => q.question === question);
-    if (questionIndex === -1) {
+    const existingQuestion = section.questions.find(q => q.question === question);
+    if (!existingQuestion) {
       return res.status(404).json({ message: 'Question not found' });
     }
-
-    // Update the question
-    section.questions[questionIndex] = { ...section.questions[questionIndex], ...updatedQuestion };
+    if (options) existingQuestion.options = options;
+    if (answer) existingQuestion.answer = answer;
 
     await questionDoc.save();
-    res.status(200).json(questionDoc);
+    res.status(200).json(existingQuestion);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
+
 
 
 router.put('/:id/sections/:sectionNumber/questions/:questionIndex', async (req, res) => {
