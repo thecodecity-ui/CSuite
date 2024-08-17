@@ -43,14 +43,19 @@ paymentRouter.get('/:id', async(req,res)=>{
 
 paymentRouter.post('/', async(req,res)=>{
     try{
-        const session = await stripe.checkout.sessions.retrieve(req.body.sessionId);
+        const {userId , name , email ,sessionId } = req.body
+        const session = await stripe.checkout.sessions.retrieve(sessionId);
     
     // Check if payment is complete
     if (session.payment_status == 'paid') {
        const payment = new Payment({
+           userId : userId , 
+           name : name ,
+           email : email ,
+           paymentData : [
             sessionId: session.id,
             amountPaid: session.amount_total,
-            paymentStatus: session.payment_status
+            paymentStatus: session.payment_status ]
         });
 
         // Save to the database
