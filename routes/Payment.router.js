@@ -43,44 +43,40 @@ paymentRouter.get('/:id', async(req,res)=>{
 
 
 
-paymentRouter.post('/', async(req,res)=>{
-    try{
-        const {userId , name , email ,sessionId , courseId } = req.body
+paymentRouter.post('/', async (req, res) => {
+    try {
+        const { userId, name, email, sessionId, courseId } = req.body;
         const session = await stripe.checkout.sessions.retrieve(sessionId);
 
         const course = await CourseDetail.findById(courseId);
-       
-    // Check if payment is complete
-    if (session.payment_status == 'paid') {
-       const payment = new Payment({
-           userId : userId , 
-           name : name ,
-           email : email ,
-           courseData : [{ courseId: course._id, courseName: course.title }],
-           paymentData : [
-            sessionId: session.id,
-            amountPaid: session.amount_total,
-            paymentStatus: session.payment_status ]
-        });
 
-        // Save to the database
-        await payment.save();
-        
-        
-        res.json({success : true ,message : "Payment completed ",data : payment})
+        // Check if payment is complete
+        if (session.payment_status === 'paid') {
+            const payment = new Payment({
+                userId: userId, 
+                name: name,
+                email: email,
+                courseData: [{ courseId: course._id, courseName: course.title }],
+                paymentData: {
+                    sessionId: session.id,
+                    amountPaid: session.amount_total,
+                    paymentStatus: session.payment_status
+                }
+            });
 
-        
-    } else {
-        // Payment not completed throw 400
-                res.status(400).json({success : true ,message : "Payment not completed",data : session})
-
-    }
+            // Save to the database
+            await payment.save();
+            
+            res.json({ success: true, message: "Payment completed", data: payment });
+        } else {
+            // Payment not completed throw 400
+            res.status(400).json({ success: true, message: "Payment not completed", data: session });
+        }
+    } catch (e) {
+        res.status(400).json({ success: false, message: "Bad Request", error: e.message });
     }
-    catch(e){
-        res.status(400).json({success : false ,message : "Bad Request",error : e.message})
-    }
-
 });
+
 
 
 
