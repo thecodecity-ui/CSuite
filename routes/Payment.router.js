@@ -8,7 +8,7 @@ paymentRouter.get('/', async(req,res)=>{
     try{
         
         let payment =await Payment.find({})
-        res.json({success : true ,message : "Payment completed ",payments : payment})
+        res.json({success : true ,message : "Payment completed ", payments : payment})
 
     }
     catch(e){
@@ -75,8 +75,8 @@ paymentRouter.post('/create-checkout-session', async (req, res) => {
             },
         ];
 
-        const sessionId = await createCheckoutSession(item);
-        res.json({ id: sessionId });
+        const response = await createCheckoutSession(item, req.body.id);
+        res.json(response);
     } catch (err) {
         console.log(err.stack);
         res.status(500).json({ error: 'Internal Server Error' });
