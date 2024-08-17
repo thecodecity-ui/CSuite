@@ -43,9 +43,30 @@ paymentRouter.get('/:id', async(req,res)=>{
 
 paymentRouter.post('/', async(req,res)=>{
     try{
-        // console.log(req.body)
-        let payment =await Payment.create(req.body)
+        const session = await stripe.checkout.sessions.retrieve(req.body.sessionId);
+    
+    // Check if payment is complete
+    if (session.payment_status == 'paid') {
+       const payment = new Payment({
+            sessionId: session.id,
+            amountPaid: session.amount_total,
+            paymentStatus: session.payment_status
+        });
+
+        // Save to the database
+        await payment.save();
+        
+        
         res.json({success : true ,message : "Payment completed ",data : payment})
+
+        
+    } else {
+        // Payment not completed throw 400
+                res.status(400).json({success : true ,message : "Payment not completed",data : session})
+
+    }
+
+        
 
     }
     catch(e){
