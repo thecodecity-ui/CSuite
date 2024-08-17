@@ -65,19 +65,12 @@ paymentRouter.post('/', async(req,res)=>{
                 res.status(400).json({success : true ,message : "Payment not completed",data : session})
 
     }
-
-        
-
     }
     catch(e){
         res.status(400).json({success : false ,message : "Bad Request",error : e.message})
-
     }
 
 })
-
-
-
 
 
 
