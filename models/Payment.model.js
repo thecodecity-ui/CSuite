@@ -17,6 +17,11 @@ const PaymentSchema = mongoose.Schema(
             type : String ,
             required : [true, 'Email field required']
         },
+        courseData :{
+            type : [] ,
+            required : [true, 'Course Data required']
+
+        }
 
         paymentData:{
             type : [] ,
