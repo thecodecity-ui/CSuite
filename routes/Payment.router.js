@@ -1,6 +1,8 @@
 const {Router} = require('express')
 const paymentRouter = Router()
 const Payment = require('../models/Payment.model')
+const CourseDetail = require('../models/CourseDetails.model');
+
 
 const { createCheckoutSession } = require('../models/Payment.model');
 
@@ -43,15 +45,18 @@ paymentRouter.get('/:id', async(req,res)=>{
 
 paymentRouter.post('/', async(req,res)=>{
     try{
-        const {userId , name , email ,sessionId } = req.body
+        const {userId , name , email ,sessionId , courseId } = req.body
         const session = await stripe.checkout.sessions.retrieve(sessionId);
-    
+
+        const course = await CourseDetail.findById(courseId);
+       
     // Check if payment is complete
     if (session.payment_status == 'paid') {
        const payment = new Payment({
            userId : userId , 
            name : name ,
            email : email ,
+           courseData : [{ courseId: course._id, courseName: course.title }],
            paymentData : [
             sessionId: session.id,
             amountPaid: session.amount_total,
