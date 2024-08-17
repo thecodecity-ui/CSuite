@@ -6,6 +6,8 @@ const User = require('../models/User.model');
 const CourseDetail = require('../models/CourseDetails.model');
 const { findUserByEmail, insertUser } = require('../models/User.model');
 
+const QuestionModel = require('../models/Question.model');
+
 const userRouter = Router();
 
 
@@ -22,6 +24,20 @@ userRouter.get('/', async (req, res) => {
   }
 });
 
+
+userRouter.post('/check', async (req, res) => {
+  try {
+    const {email,password} = req.body;
+    const users = await User.findOne({email:email});
+    if (users.length<1) {
+      return res.status(200).json({ success: false, message: "User not found" });
+    }
+    isMatch = await bcrypt.compare(password, users.password);
+    res.status(200).json({ success: true, users, message: "Get request success" });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
 
 userRouter.get('/user/:id', async (req, res) => {
   try {
