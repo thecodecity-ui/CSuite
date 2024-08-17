@@ -21,7 +21,7 @@ const PaymentSchema = mongoose.Schema(
             type : [] ,
             required : [true, 'Course Data required']
 
-        }
+        },
 
         paymentData:{
             type : [] ,
