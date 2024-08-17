@@ -39,7 +39,7 @@ paymentRouter.get('/:id', async(req,res)=>{
 
     }
 
-})
+});
 
 
 
@@ -80,7 +80,7 @@ paymentRouter.post('/', async(req,res)=>{
         res.status(400).json({success : false ,message : "Bad Request",error : e.message})
     }
 
-})
+});
 
 
 
