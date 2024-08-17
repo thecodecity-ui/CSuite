@@ -47,8 +47,8 @@ async function createCheckoutSession(item, id) {
         payment_method_types: ["card"],
         line_items: item,
         mode: "payment",
-        success_url: `https://csuite-academy.netlify.app/home/courseDetails/`+id+`?status=success`,
-        cancel_url: `https://csuite-academy.netlify.app/home/courseDetails/`+id+`?status=failed`
+        success_url: `https://csuiteacademy.netlify.app/home/courseDetails/`+id+`?status=success`,
+        cancel_url: `https://csuiteacademy.netlify.app/home/courseDetails/`+id+`?status=failed`
     });
     return {id:session.id, couseid:id,other:session,};
 }
