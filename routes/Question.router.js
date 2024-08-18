@@ -26,7 +26,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.post('/details', async (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const { description, difficulty, tags, time } = req.body;
     const question = new Question({
@@ -42,7 +42,7 @@ router.post('/details', async (req, res) => {
   }
 });
 
-router.get('/:id/details', async (req, res) => {
+router.get('/:id/', async (req, res) => {
   try {
     const question = await Question.findById(req.params.id);
     if (!question) return res.status(404).json({ error: 'Question not found' });
@@ -52,13 +52,13 @@ router.get('/:id/details', async (req, res) => {
   }
 });
 
-router.put('/:id/details', async (req, res) => {
+router.put('/:id/', async (req, res) => {
   try {
     const { description, difficulty, tags, time } = req.body;
     const question = await Question.findByIdAndUpdate(
       req.params.id,
       { description, difficulty, tags, time },
-      { new: true } // This option returns the updated document
+      { new: true } 
     );
     if (!question) return res.status(404).json({ error: 'Question not found' });
     res.status(200).json(question);
@@ -67,7 +67,7 @@ router.put('/:id/details', async (req, res) => {
   }
 });
 
-router.delete('/:id/details', async (req, res) => {
+router.delete('/:id/', async (req, res) => {
   try {
     const question = await Question.findByIdAndDelete(req.params.id);
     if (!question) return res.status(404).json({ error: 'Question not found' });
@@ -77,8 +77,8 @@ router.delete('/:id/details', async (req, res) => {
   }
 });
 
-// POST /:id/details/sections - Add a new section to a specific question
-router.post('/:id/details/sections', async (req, res) => {
+ //Add a new section to a specific question
+router.post('/:id/sections', async (req, res) => {
   try {
     const { section, questions } = req.body;
     const question = await Question.findById(req.params.id);
@@ -92,8 +92,8 @@ router.post('/:id/details/sections', async (req, res) => {
   }
 });
 
-// GET /:id/details/sections - Get all sections of a specific question
-router.get('/:id/details/sections', async (req, res) => {
+//Get all sections of a specific question
+router.get('/:id/sections', async (req, res) => {
   try {
     const question = await Question.findById(req.params.id);
     if (!question) return res.status(404).json({ error: 'Question not found' });
@@ -104,8 +104,8 @@ router.get('/:id/details/sections', async (req, res) => {
   }
 });
 
-// PUT /:id/details/sections/:sectionNumber - Update a specific section in a question
-router.put('/:id/details/sections/:sectionNumber', async (req, res) => {
+ //Update a specific section in a question
+router.put('/:id/sections/:sectionNumber', async (req, res) => {
   try {
     const { section, questions } = req.body;
     const question = await Question.findById(req.params.id);
@@ -122,8 +122,8 @@ router.put('/:id/details/sections/:sectionNumber', async (req, res) => {
   }
 });
 
-// DELETE /:id/details/sections/:sectionNumber - Delete a specific section from a question
-router.delete('/:id/details/sections/:sectionNumber', async (req, res) => {
+//  Delete a specific section from a question
+router.delete('/:id/sections/:sectionNumber', async (req, res) => {
   try {
     const question = await Question.findById(req.params.id);
     if (!question) return res.status(404).json({ error: 'Question not found' });
@@ -139,7 +139,7 @@ router.delete('/:id/details/sections/:sectionNumber', async (req, res) => {
   }
 });
 
-// POST /:id/details/sections/:sectionNumber/questions - Add a new question to a specific section
+//  Add a new question to a specific section
 router.post('/:id/details/sections/:sectionNumber/questions', async (req, res) => {
   try {
     const { question, options, answer } = req.body;
@@ -157,8 +157,8 @@ router.post('/:id/details/sections/:sectionNumber/questions', async (req, res) =
   }
 });
 
-// GET /:id/details/sections/:sectionNumber/questions - Get all questions within a specific section
-router.get('/:id/details/sections/:sectionNumber/questions', async (req, res) => {
+// Get all questions within a specific section
+router.get('/:id/sections/:sectionNumber/questions', async (req, res) => {
   try {
     const q = await Question.findById(req.params.id);
     if (!q) return res.status(404).json({ error: 'Question not found' });
@@ -171,8 +171,8 @@ router.get('/:id/details/sections/:sectionNumber/questions', async (req, res) =>
     res.status(500).json({ error: err.message });
   }
 });
-// PUT /:id/details/sections/:sectionNumber/questions/:questionIndex - Update a specific question within a section
-router.put('/:id/details/sections/:sectionNumber/questions/:questionIndex', async (req, res) => {
+//  Update a specific question within a section
+router.put('/:id/sections/:sectionNumber/questions/:questionIndex', async (req, res) => {
   try {
     const { question, options, answer } = req.body;
     const q = await Question.findById(req.params.id);
@@ -191,8 +191,8 @@ router.put('/:id/details/sections/:sectionNumber/questions/:questionIndex', asyn
     res.status(500).json({ error: err.message });
   }
 });
-// DELETE /:id/details/sections/:sectionNumber/questions/:questionIndex - Delete a specific question within a section
-router.delete('/:id/details/sections/:sectionNumber/questions/:questionIndex', async (req, res) => {
+//Delete a specific question within a section
+router.delete('/:id/sections/:sectionNumber/questions/:questionIndex', async (req, res) => {
   try {
     const q = await Question.findById(req.params.id);
     if (!q) return res.status(404).json({ error: 'Question not found' });
@@ -210,14 +210,6 @@ router.delete('/:id/details/sections/:sectionNumber/questions/:questionIndex', a
     res.status(500).json({ error: err.message });
   }
 });
-
-
-
-
-
-
-
-
 
 
 module.exports = router;
