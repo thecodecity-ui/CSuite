@@ -26,242 +26,198 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.get('/:id/sections/:sectionNumber/details', async (req, res) => {
-  const { id, sectionNumber } = req.params;
-
+router.post('/details', async (req, res) => {
   try {
-    const questionDoc = await Question.findById(id);
-    if (!questionDoc) {
-      return res.status(404).json({ message: 'Document not found' });
-    }
-
-    const section = questionDoc.sections.find(s => s.section === parseInt(sectionNumber));
-    if (!section) {
-      return res.status(404).json({ message: 'Section not found' });
-    }
-
-    const sectionDetails = {
-      questions: section.questions,
-    };
-
-    res.status(200).json(sectionDetails);
+    const { description, difficulty, tags, time } = req.body;
+    const question = new Question({
+      description,
+      difficulty,
+      tags,
+      time,
+    });
+    await question.save();
+    res.status(201).json(question);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/:id/details', async (req, res) => {
+  try {
+    const question = await Question.findById(req.params.id);
+    if (!question) return res.status(404).json({ error: 'Question not found' });
+    res.status(200).json(question);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.put('/:id/details', async (req, res) => {
+  try {
+    const { description, difficulty, tags, time } = req.body;
+    const question = await Question.findByIdAndUpdate(
+      req.params.id,
+      { description, difficulty, tags, time },
+      { new: true } // This option returns the updated document
+    );
+    if (!question) return res.status(404).json({ error: 'Question not found' });
+    res.status(200).json(question);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.delete('/:id/details', async (req, res) => {
+  try {
+    const question = await Question.findByIdAndDelete(req.params.id);
+    if (!question) return res.status(404).json({ error: 'Question not found' });
+    res.status(200).json({ message: 'Question deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /:id/details/sections - Add a new section to a specific question
+router.post('/:id/details/sections', async (req, res) => {
+  try {
+    const { section, questions } = req.body;
+    const question = await Question.findById(req.params.id);
+    if (!question) return res.status(404).json({ error: 'Question not found' });
+
+    question.sections.push({ section, questions });
+    await question.save();
+    res.status(201).json(question);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /:id/details/sections - Get all sections of a specific question
+router.get('/:id/details/sections', async (req, res) => {
+  try {
+    const question = await Question.findById(req.params.id);
+    if (!question) return res.status(404).json({ error: 'Question not found' });
+
+    res.status(200).json(question.sections);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT /:id/details/sections/:sectionNumber - Update a specific section in a question
+router.put('/:id/details/sections/:sectionNumber', async (req, res) => {
+  try {
+    const { section, questions } = req.body;
+    const question = await Question.findById(req.params.id);
+    if (!question) return res.status(404).json({ error: 'Question not found' });
+
+    const sectionIndex = question.sections.findIndex(s => s.section === parseInt(req.params.sectionNumber));
+    if (sectionIndex === -1) return res.status(404).json({ error: 'Section not found' });
+
+    question.sections[sectionIndex] = { section, questions };
+    await question.save();
+    res.status(200).json(question);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE /:id/details/sections/:sectionNumber - Delete a specific section from a question
+router.delete('/:id/details/sections/:sectionNumber', async (req, res) => {
+  try {
+    const question = await Question.findById(req.params.id);
+    if (!question) return res.status(404).json({ error: 'Question not found' });
+
+    const sectionIndex = question.sections.findIndex(s => s.section === parseInt(req.params.sectionNumber));
+    if (sectionIndex === -1) return res.status(404).json({ error: 'Section not found' });
+
+    question.sections.splice(sectionIndex, 1);
+    await question.save();
+    res.status(200).json(question);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /:id/details/sections/:sectionNumber/questions - Add a new question to a specific section
+router.post('/:id/details/sections/:sectionNumber/questions', async (req, res) => {
+  try {
+    const { question, options, answer } = req.body;
+    const q = await Question.findById(req.params.id);
+    if (!q) return res.status(404).json({ error: 'Question not found' });
+
+    const section = q.sections.find(s => s.section === parseInt(req.params.sectionNumber));
+    if (!section) return res.status(404).json({ error: 'Section not found' });
+
+    section.questions.push({ question, options, answer });
+    await q.save();
+    res.status(201).json(q);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /:id/details/sections/:sectionNumber/questions - Get all questions within a specific section
+router.get('/:id/details/sections/:sectionNumber/questions', async (req, res) => {
+  try {
+    const q = await Question.findById(req.params.id);
+    if (!q) return res.status(404).json({ error: 'Question not found' });
+
+    const section = q.sections.find(s => s.section === parseInt(req.params.sectionNumber));
+    if (!section) return res.status(404).json({ error: 'Section not found' });
+
+    res.status(200).json(section.questions);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+// PUT /:id/details/sections/:sectionNumber/questions/:questionIndex - Update a specific question within a section
+router.put('/:id/details/sections/:sectionNumber/questions/:questionIndex', async (req, res) => {
+  try {
+    const { question, options, answer } = req.body;
+    const q = await Question.findById(req.params.id);
+    if (!q) return res.status(404).json({ error: 'Question not found' });
+
+    const section = q.sections.find(s => s.section === parseInt(req.params.sectionNumber));
+    if (!section) return res.status(404).json({ error: 'Section not found' });
+
+    if (section.questions.length <= req.params.questionIndex)
+      return res.status(404).json({ error: 'Question not found in section' });
+
+    section.questions[req.params.questionIndex] = { question, options, answer };
+    await q.save();
+    res.status(200).json(q);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+// DELETE /:id/details/sections/:sectionNumber/questions/:questionIndex - Delete a specific question within a section
+router.delete('/:id/details/sections/:sectionNumber/questions/:questionIndex', async (req, res) => {
+  try {
+    const q = await Question.findById(req.params.id);
+    if (!q) return res.status(404).json({ error: 'Question not found' });
+
+    const section = q.sections.find(s => s.section === parseInt(req.params.sectionNumber));
+    if (!section) return res.status(404).json({ error: 'Section not found' });
+
+    if (section.questions.length <= req.params.questionIndex)
+      return res.status(404).json({ error: 'Question not found in section' });
+
+    section.questions.splice(req.params.questionIndex, 1);
+    await q.save();
+    res.status(200).json(q);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
 
-router.post('/', async (req, res) => {
-  try {
-    const newQuestion = new Question(req.body);
-    const savedQuestion = await newQuestion.save();
-    res.status(201).json(savedQuestion);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
-
-
-router.post('/:id/sections', async (req, res) => {
-  const { id } = req.params;
-  const newSection = req.body;
-
-  try {
-    const questionDoc = await Question.findById(id);
-    if (!questionDoc) {
-      return res.status(404).json({ message: 'Document not found' });
-    }
-
-    questionDoc.sections.push(newSection);
-    await questionDoc.save();
-    res.status(201).json(questionDoc);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-router.post('/:questionId/sections/:sectionNumber/questions', async (req, res) => {
-  const { questionId, sectionNumber } = req.params;
-  const newQuestion = req.body;
-
-  try {
-    const questionDoc = await Question.findById(questionId);
-    if (!questionDoc) {
-      return res.status(404).json({ message: 'Question document not found' });
-    }
-
-    const section = questionDoc.sections.find(sec => sec.section === parseInt(sectionNumber));
-    if (!section) {
-      return res.status(404).json({ message: 'Section not found' });
-    }
-
-    section.questions.push(newQuestion);
-
-    await questionDoc.save();
-    res.status(201).json(section);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-module.exports = router;
 
 
 
-router.put('/:id/sections/:sectionNumber/details', async (req, res) => {
-  const { id, sectionNumber } = req.params;
-  const { duration, difficulty, tags, description } = req.body;
-
-  try {
-    const questionDoc = await Question.findById(id);
-    if (!questionDoc) {
-      return res.status(404).json({ message: 'Document not found' });
-    }
-
-    const section = questionDoc.sections.find(s => s.section === parseInt(sectionNumber));
-    if (!section) {
-      return res.status(404).json({ message: 'Section not found' });
-    }
-
-    if (duration) section.duration = duration;
-    if (difficulty) section.difficulty = difficulty;
-    if (tags) section.tags = tags;
-    if (description) section.description = description;
-
-    await questionDoc.save();
-    res.status(200).json(section);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-
-router.put('/:id/sections/:sectionNumber/questions', async (req, res) => {
-  const { id, sectionNumber } = req.params;
-  const newQuestions = req.body; // Expecting an array of new questions
-
-  try {
-    const questionDoc = await Question.findById(id);
-    if (!questionDoc) {
-      return res.status(404).json({ message: 'Document not found' });
-    }
-
-    const section = questionDoc.sections.find(s => s.section === parseInt(sectionNumber));
-    if (!section) {
-      return res.status(404).json({ message: 'Section not found' });
-    }
-
-    section.questions = newQuestions;
-
-    await questionDoc.save();
-    res.status(200).json(section);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-
-router.put('/:id/sections/:sectionNumber/questions/:questionIndex', async (req, res) => {
-  const { id, sectionNumber, questionIndex } = req.params;
-  const updatedQuestion = req.body;
-
-  try {
-    const questionDoc = await Question.findById(id);
-    if (!questionDoc) {
-      return res.status(404).json({ message: 'Document not found' });
-    }
-
-    const section = questionDoc.sections.find(s => s.section === parseInt(sectionNumber));
-    if (!section) {
-      return res.status(404).json({ message: 'Section not found' });
-    }
-
-    if (section.questions[questionIndex]) {
-      section.questions[questionIndex] = updatedQuestion;
-      await questionDoc.save();
-      res.status(200).json(questionDoc);
-    } else {
-      res.status(404).json({ message: 'Question not found' });
-    }
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-
-router.delete('/:id/sections/:sectionNumber/questions', async (req, res) => {
-  const { id, sectionNumber } = req.params;
-
-  try {
-    const questionDoc = await Question.findById(id);
-    if (!questionDoc) {
-      return res.status(404).json({ message: 'Document not found' });
-    }
-
-    const section = questionDoc.sections.find(s => s.section === parseInt(sectionNumber));
-    if (!section) {
-      return res.status(404).json({ message: 'Section not found' });
-    }
-
-    section.questions = [];
-    await questionDoc.save();
-
-    res.status(200).json({ message: 'All questions in the section have been deleted', section });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
 
 
 
-router.delete('/:id/sections/:sectionNumber/questions/:questionIndex', async (req, res) => {
-  const { id, sectionNumber, questionIndex } = req.params;
-
-  try {
-    const questionDoc = await Question.findById(id);
-    if (!questionDoc) {
-      return res.status(404).json({ message: 'Document not found' });
-    }
-
-    const section = questionDoc.sections.find(s => s.section === parseInt(sectionNumber));
-    if (!section) {
-      return res.status(404).json({ message: 'Section not found' });
-    }
-
-    if (section.questions[questionIndex]) {
-      section.questions.splice(questionIndex, 1);
-      await questionDoc.save();
-      res.status(200).json(questionDoc);
-    } else {
-      res.status(404).json({ message: 'Question not found' });
-    }
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-
-router.delete('/:id/sections/:sectionNumber', async (req, res) => {
-  const { id, sectionNumber } = req.params;
-
-  try {
-    const questionDoc = await Question.findById(id);
-    if (!questionDoc) {
-      return res.status(404).json({ message: 'Document not found' });
-    }
-
-    const sectionIndex = questionDoc.sections.findIndex(s => s.section === parseInt(sectionNumber));
-    if (sectionIndex !== -1) {
-      questionDoc.sections.splice(sectionIndex, 1);
-      await questionDoc.save();
-      res.status(200).json(questionDoc);
-    } else {
-      res.status(404).json({ message: 'Section not found' });
-    }
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
 
 
 module.exports = router;
