@@ -140,7 +140,7 @@ router.delete('/:id/sections/:sectionNumber', async (req, res) => {
 });
 
 //  Add a new question to a specific section
-router.post('/:id/details/sections/:sectionNumber/questions', async (req, res) => {
+router.post('/:id/sections/:sectionNumber/questions', async (req, res) => {
   try {
     const { question, options, answer } = req.body;
     const q = await Question.findById(req.params.id);
