@@ -2,6 +2,7 @@ const {Router} = require('express')
 const paymentRouter = Router()
 const Payment = require('../models/Payment.model')
 const CourseDetail = require('../models/CourseDetails.model');
+const stripe = require("stripe")("sk_test_51PSLZRI8GvQfURhs8oaALuVeKJn5YM4J5PVSh2NCp0mIhK1JlGDU3FsGl2ZXW4d3zPKb3RQkPOnQn2vEiSFnKDmX008yQ5HAhQ");
 
 
 const { createCheckoutSession } = require('../models/Payment.model');
