@@ -45,7 +45,7 @@ module.exports = Payment
 
 
 
-const stripe = require("stripe")("sk_test_51PSLZRI8GvQfURhsFsx4HK1cRGqrc3LilDh0H57XWr44Zm2maO0XPfV7AZPHbRiBsqb1rcJXvCJZvtY61FLQcD8z00rm5v52VU");
+const stripe = require("stripe")("sk_test_51PUVZZRrG0ZkGYrrIq8xX3O1fcIQ4xrvYmHRM9m6oFSNjEZL0AcRnLmnAx7ZORfMLH0UwqEDQGlcFlfv7Hm7JJoN00nHLBHIxq");
 
 async function createCheckoutSession(item, id) {
     const session = await stripe.checkout.sessions.create({
