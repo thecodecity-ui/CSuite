@@ -106,6 +106,9 @@ userRouter.put('/updatecourse/:id', async (req, res) => {
   try {
     console.log('Request received:', req.params.id, req.body);
     const { courseId, courseName} = req.body;
+     if (!courseId || !courseName) {
+      return res.status(400).json({ success: false, message: "courseId and courseName are required" });
+    }
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
