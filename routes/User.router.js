@@ -104,7 +104,7 @@ userRouter.put('/:id', upload.fields([{ name: 'profilePic' }, { name: 'profileBa
 
 userRouter.put('/updatecourse/:id', async (req, res) => {
   try {
-    const { courseId } = req.body;
+    const { courseId, courseName} = req.body;
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
