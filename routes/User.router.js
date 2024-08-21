@@ -120,7 +120,7 @@ userRouter.put('/updatecourse/:id', async (req, res) => {
       return res.status(400).json({ success: false, message: "Course already purchased" });
     }
 
-    user.coursePurchased.some({ courseId: course._id, courseName: course.title });
+     user.coursePurchased.push({ courseId: course._id, courseName: course.title });
     const updatedUser = await user.save();
     res.status(200).json({ success: true, user: updatedUser, message: "Course added successfully" });
   } catch (e) {
