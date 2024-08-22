@@ -102,6 +102,50 @@ userRouter.put('/:id', upload.fields([{ name: 'profilePic' }, { name: 'profileBa
 });
 
 
+userRouter.get('/:id/ela', async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: 'Invalid user ID' });
+    }
+    const user = await User.findById(userId).select('elaComplete');
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ elaComplete: user.elaComplete });
+  } catch (error) {
+    console.error('Error fetching ELA complete status:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+userRouter.put('/:id/ela', async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { elaComplete } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: 'Invalid user ID' });
+    }
+    if (typeof elaComplete !== 'boolean') {
+      return res.status(400).json({ error: 'elaComplete must be a boolean' });
+    }
+    const user = await User.findByIdAndUpdate(userId, { elaComplete }, { new: true }).select('elaComplete');
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ message: 'ELA complete status updated successfully', elaComplete: user.elaComplete });
+  } catch (error) {
+    console.error('Error updating ELA complete status:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 userRouter.put('/updatecourse/:id', async (req, res) => {
   try {
     console.log('Request received:', req.params.id, req.body);
