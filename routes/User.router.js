@@ -13,7 +13,14 @@ const userRouter = Router();
 
 
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = multer({
+  storage: storage,
+  limits: {
+    fieldSize: 25 * 1024 * 1024, 
+    fileSize: 25 * 1024 * 1024 
+  }
+});
+
 
 // Get all users
 userRouter.get('/', async (req, res) => {
