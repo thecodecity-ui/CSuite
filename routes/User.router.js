@@ -109,6 +109,20 @@ userRouter.put('/:id', upload.fields([{ name: 'profilePic' }, { name: 'profileBa
   }
 });
 
+// Update ELA test score for a user
+router.put('/updateElaScore/:id', async (req, res) => {
+    try {
+        const updatedUser = await User.findByIdAndUpdate(
+            req.params.id,
+            { elaTestScore: req.body.elaTestScore },
+            { new: true }
+        );
+        if (!updatedUser) return res.status(404).json({ message: 'User not found' });
+        res.json({ message: 'ELA test score updated', user: updatedUser });
+    } catch (error) {
+        res.status(400).json({ message: 'Error updating ELA test score', error: error.message });
+    }
+});
 
 userRouter.get('/:id/ela', async (req, res) => {
   try {
