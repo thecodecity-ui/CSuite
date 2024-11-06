@@ -7,7 +7,8 @@ const courseDetailsRouter = express.Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-const bufferToBase64 = (buffer) => buffer.toString('base64');
+// Convert buffer to Base64 
+const bufferToBase64 = (buffer) => `data:image/jpeg;base64,${buffer.toString('base64')}`;
 
 const parseJsonFields = (req, res, next) => {
   try {
@@ -70,6 +71,12 @@ courseDetailsRouter.post('/add', upload.single('image'), parseJsonFields, async 
 courseDetailsRouter.get('/', async (req, res) => {
   try {
     const courses = await CourseDetail.find();
+    // Convert image fields to Base64 data URLs for each course
+    courses.forEach(course => {
+      if (course.image) {
+        course.image = `data:image/jpeg;base64,${course.image}`;
+      }
+    });
     res.status(200).json(courses);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching courses', error: error.message });
@@ -82,6 +89,10 @@ courseDetailsRouter.get('/:id', async (req, res) => {
     const course = await CourseDetail.findById(id);
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
+    }
+    // Convert image field to Base64 data URL for single course
+    if (course.image) {
+      course.image = `data:image/jpeg;base64,${course.image}`;
     }
     res.status(200).json(course);
   } catch (error) {
@@ -119,7 +130,7 @@ courseDetailsRouter.put('/edit/:id', upload.single('image'), parseJsonFields, as
         whoIsThisFor,
         whatYouGet,
         syllabus,
-        price : Number(price)
+        price: Number(price)
       },
       { new: true }
     );
