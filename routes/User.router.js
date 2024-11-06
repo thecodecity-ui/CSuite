@@ -110,7 +110,7 @@ userRouter.put('/:id', upload.fields([{ name: 'profilePic' }, { name: 'profileBa
 });
 
 // Update ELA test score for a user
-router.put('/updateElaScore/:id', async (req, res) => {
+userRouter.put('/updateElaScore/:id', async (req, res) => {
     try {
         const updatedUser = await User.findByIdAndUpdate(
             req.params.id,
