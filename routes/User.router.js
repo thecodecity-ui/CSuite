@@ -68,8 +68,11 @@ userRouter.post('/', upload.fields([{ name: 'profilePic' }, { name: 'profileBann
     const profileBanner = req.files?.profileBanner?.[0]?.buffer?.toString('base64') || null;
     
     console.log("Received request to register or login user with email:", email);
-    let existingUser = await User.findOne({ email });
+
+    // Check if the user already exists
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
+      console.log("User already exists with email:", email);
       return res.status(200).json({ success: true, user: existingUser, message: "User already registered, logged in successfully" });
     }
 
