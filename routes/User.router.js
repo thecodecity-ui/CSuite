@@ -59,29 +59,57 @@ userRouter.get('/user/:id', async (req, res) => {
   }
 });
 
-
 userRouter.post('/', upload.fields([{ name: 'profilePic' }, { name: 'profileBanner' }]), async (req, res) => {
   try {
     const { password, socialMediaId, ...rest } = req.body;
-    const profilePic = req.files.profilePic ? req.files.profilePic[0].buffer.toString('base64') : null;
-    const profileBanner = req.files.profileBanner ? req.files.profileBanner[0].buffer.toString('base64') : null;
+
+    // Process profilePic and profileBanner if they exist
+    const profilePic = req.files?.profilePic?.[0]?.buffer?.toString('base64') || null;
+    const profileBanner = req.files?.profileBanner?.[0]?.buffer?.toString('base64') || null;
 
     let newUser;
     if (socialMediaId) {
+      // Create user with social media ID
       newUser = new User({ ...rest, profilePic, profileBanner, socialMediaId });
     } else if (password) {
+      // Hash password for password-based user creation
       const hashedPassword = await bcrypt.hash(password, 10);
       newUser = new User({ ...rest, password: hashedPassword, profilePic, profileBanner });
     } else {
       return res.status(400).json({ success: false, message: 'Password or social media ID required' });
     }
 
+    // Save the new user to the database
     const savedUser = await newUser.save();
     res.status(201).json({ success: true, user: savedUser, message: "User added successfully" });
   } catch (e) {
+    console.error("Error creating user:", e);  // Improved error logging
     res.status(500).json({ success: false, message: e.message });
   }
 });
+
+//userRouter.post('/', upload.fields([{ name: 'profilePic' }, { name: 'profileBanner' }]), async (req, res) => {
+//  try {
+//    const { password, socialMediaId, ...rest } = req.body;
+//    const profilePic = req.files.profilePic ? req.files.profilePic[0].buffer.toString('base64') : null;
+//    const profileBanner = req.files.profileBanner ? req.files.profileBanner[0].buffer.toString('base64') : null;
+
+//    let newUser;
+//    if (socialMediaId) {
+//      newUser = new User({ ...rest, profilePic, profileBanner, socialMediaId });
+//    } else if (password) {
+//      const hashedPassword = await bcrypt.hash(password, 10);
+//      newUser = new User({ ...rest, password: hashedPassword, profilePic, profileBanner });
+//    } else {
+//      return res.status(400).json({ success: false, message: 'Password or social media ID required' });
+//    }
+
+//    const savedUser = await newUser.save();
+//    res.status(201).json({ success: true, user: savedUser, message: "User added successfully" });
+//  } catch (e) {
+//    res.status(500).json({ success: false, message: e.message });
+//  }
+//});
 
 
 userRouter.put('/:id', upload.fields([{ name: 'profilePic' }, { name: 'profileBanner' }]), async (req, res) => {
