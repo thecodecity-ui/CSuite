@@ -1,15 +1,26 @@
 const { Router } = require('express');
 const multer = require('multer');
 const bcrypt = require('bcrypt');
+const mongoose = require('mongoose');
+//const jwt = require('jsonwebtoken'); 
 const User = require('../models/User.model');
 const CourseDetail = require('../models/CourseDetails.model');
 const { findUserByEmail, insertUser } = require('../models/User.model');
+
+const QuestionModel = require('../models/Question.model');
 
 const userRouter = Router();
 
 
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = multer({
+  storage: storage,
+  limits: {
+    fieldSize: 25 * 1024 * 1024, 
+    fileSize: 25 * 1024 * 1024 
+  }
+});
+
 
 // Get all users
 userRouter.get('/', async (req, res) => {
@@ -22,7 +33,21 @@ userRouter.get('/', async (req, res) => {
 });
 
 
-userRouter.get('/:id', async (req, res) => {
+userRouter.post('/check', async (req, res) => {
+  try {
+    const {email,password} = req.body;
+    const users = await User.findOne({email:email});
+    if (users.length<1) {
+      return res.status(200).json({ success: false, message: "User not found" });
+    }
+    isMatch = await bcrypt.compare(password, users.password);
+    res.status(200).json({ success: true, users, message: "Get request success" });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+});
+
+userRouter.get('/user/:id', async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -34,29 +59,66 @@ userRouter.get('/:id', async (req, res) => {
   }
 });
 
-
 userRouter.post('/', upload.fields([{ name: 'profilePic' }, { name: 'profileBanner' }]), async (req, res) => {
   try {
     const { password, socialMediaId, ...rest } = req.body;
-    const profilePic = req.files.profilePic ? req.files.profilePic[0].buffer.toString('base64') : null;
-    const profileBanner = req.files.profileBanner ? req.files.profileBanner[0].buffer.toString('base64') : null;
+
+    // Process profilePic and profileBanner if they exist
+    const profilePic = req.files?.profilePic?.[0]?.buffer?.toString('base64') || null;
+    const profileBanner = req.files?.profileBanner?.[0]?.buffer?.toString('base64') || null;
+    
+    console.log("Received request to register or login user with email:", email);
+
+    // Check if the user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      console.log("User already exists with email:", email);
+      return res.status(200).json({ success: true, user: existingUser, message: "User already registered, logged in successfully" });
+    }
 
     let newUser;
     if (socialMediaId) {
+      // Create user with social media ID
       newUser = new User({ ...rest, profilePic, profileBanner, socialMediaId });
     } else if (password) {
+      // Hash password for password-based user creation
       const hashedPassword = await bcrypt.hash(password, 10);
       newUser = new User({ ...rest, password: hashedPassword, profilePic, profileBanner });
     } else {
       return res.status(400).json({ success: false, message: 'Password or social media ID required' });
     }
 
+    // Save the new user to the database
     const savedUser = await newUser.save();
     res.status(201).json({ success: true, user: savedUser, message: "User added successfully" });
   } catch (e) {
+    console.error("Error creating user:", e);  // Improved error logging
     res.status(500).json({ success: false, message: e.message });
   }
 });
+
+//userRouter.post('/', upload.fields([{ name: 'profilePic' }, { name: 'profileBanner' }]), async (req, res) => {
+//  try {
+//    const { password, socialMediaId, ...rest } = req.body;
+//    const profilePic = req.files.profilePic ? req.files.profilePic[0].buffer.toString('base64') : null;
+//    const profileBanner = req.files.profileBanner ? req.files.profileBanner[0].buffer.toString('base64') : null;
+
+//    let newUser;
+//    if (socialMediaId) {
+//      newUser = new User({ ...rest, profilePic, profileBanner, socialMediaId });
+//    } else if (password) {
+//      const hashedPassword = await bcrypt.hash(password, 10);
+//      newUser = new User({ ...rest, password: hashedPassword, profilePic, profileBanner });
+//    } else {
+//      return res.status(400).json({ success: false, message: 'Password or social media ID required' });
+//    }
+
+//    const savedUser = await newUser.save();
+//    res.status(201).json({ success: true, user: savedUser, message: "User added successfully" });
+//  } catch (e) {
+//    res.status(500).json({ success: false, message: e.message });
+//  }
+//});
 
 
 userRouter.put('/:id', upload.fields([{ name: 'profilePic' }, { name: 'profileBanner' }]), async (req, res) => {
@@ -84,10 +146,72 @@ userRouter.put('/:id', upload.fields([{ name: 'profilePic' }, { name: 'profileBa
   }
 });
 
+// Update ELA test score for a user
+userRouter.put('/updateElaScore/:id', async (req, res) => {
+    try {
+        const updatedUser = await User.findByIdAndUpdate(
+            req.params.id,
+            { elaTestScore: req.body.elaTestScore },
+            { new: true }
+        );
+        if (!updatedUser) return res.status(404).json({ message: 'User not found' });
+        res.json({ message: 'ELA test score updated', user: updatedUser });
+    } catch (error) {
+        res.status(400).json({ message: 'Error updating ELA test score', error: error.message });
+    }
+});
+
+userRouter.get('/:id/ela', async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: 'Invalid user ID' });
+    }
+    const user = await User.findById(userId).select('elaComplete');
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ elaComplete: user.elaComplete });
+  } catch (error) {
+    console.error('Error fetching ELA complete status:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+userRouter.put('/:id/ela', async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { elaComplete } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ error: 'Invalid user ID' });
+    }
+    if (typeof elaComplete !== 'boolean') {
+      return res.status(400).json({ error: 'elaComplete must be a boolean' });
+    }
+    const user = await User.findByIdAndUpdate(userId, { elaComplete }, { new: true }).select('elaComplete');
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ message: 'ELA complete status updated successfully', elaComplete: user.elaComplete });
+  } catch (error) {
+    console.error('Error updating ELA complete status:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 userRouter.put('/updatecourse/:id', async (req, res) => {
   try {
-    const { courseId } = req.body;
+    console.log('Request received:', req.params.id, req.body);
+    const { courseId, courseName} = req.body;
+     if (!courseId || !courseName) {
+      return res.status(400).json({ success: false, message: "courseId and courseName are required" });
+    }
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
@@ -102,7 +226,7 @@ userRouter.put('/updatecourse/:id', async (req, res) => {
       return res.status(400).json({ success: false, message: "Course already purchased" });
     }
 
-    user.coursePurchased.push({ courseId: course._id, courseName: course.title });
+     user.coursePurchased.push({ courseId: course._id, courseName: course.title });
     const updatedUser = await user.save();
     res.status(200).json({ success: true, user: updatedUser, message: "Course added successfully" });
   } catch (e) {
@@ -234,17 +358,6 @@ userRouter.get('/progress/:userId/:courseId', async (req, res) => {
 });
 
 
-
-userRouter.get('/check', async (req, res) => {
-  try {
-    const user = await findUserByEmail(req.query.email);
-    res.json(JSON.stringify(user));
-} catch (err) {
-    console.log(err.stack);
-    res.status(500).json({ error: 'Internal Server Error' });
-}
-});
-
 userRouter.get('/fetchela', async (req, res) => {
   try {
     const ela = await ELA.findOne();  // Assuming ELA is another model
@@ -255,34 +368,91 @@ userRouter.get('/fetchela', async (req, res) => {
   }
 });
 
-userRouter.get('/login', async (req, res) => {
+userRouter.get('/check', async (req, res) => {
   try {
-    const user = await findUserByEmail(req.query.email);
-    res.json(JSON.stringify(user));
-} catch (err) {
-    console.log(err.stack);
+    if (!req.query.email) {
+      return res.status(400).json({ error: 'Email query parameter is required' });
+    }
+    console.log(req.query.email);
+    const user = await User.findOne({ email: req.query.email });
+
+    if (user) {
+      res.json(user);
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+    console.log(req.query.email)
+    console.log("route --- check")
+  } catch (err) {
+    console.error('Error in /check route:', err);
     res.status(500).json({ error: 'Internal Server Error' });
-}
+  }
+
+  console.log("Check")
 });
 
-userRouter.post('/signup', async (req, res) => {
-  console.log(req.body);
-    try {
-        const user = {
-            "name": req.body.name,
-            "email": req.body.email,
-            "linkedin": req.body.linkedin,
-            "password": req.body.password,
-            "type": "user",
-            "first-login": true,
-            "elacomplete": false,
-        };
-        await insertUser(user);
-        res.json({ message: 'Data received successfully!' });
-    } catch (err) {
-        console.log(err.stack);
-        res.status(500).json({ error: 'Internal Server Error' });
+userRouter.post('/checks', async (req, res) => {
+  try {
+    const { email } = req.body;
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      return res.status(200).json({ exists: true, message: 'Email already exists in the database' });
+    } else {
+      return res.status(200).json({ exists: false, message: 'Email is available' });
     }
+  } catch (err) {
+    console.log(err.stack);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+
+userRouter.post('/signup', async (req, res) => {
+  try {
+    const { name, email, linkedin, password } = req.body;
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: 'User already exists' });
+    }
+    const newUser = new User({
+      name,
+      email,
+      linkedIn: linkedin,
+      password,
+      type: 'user',
+      firstLogin: true,
+      elaComplete: false,
+    });
+
+    // Save the user
+    await newUser.save();
+    res.json({ message: 'Signup successful', user: newUser });
+  } catch (err) {
+    console.log(err.stack);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+userRouter.post('/login', async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.body.email }).select('+password');
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid email or password' });
+    }
+    const isMatch = await bcrypt.compare(req.body.password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: 'Invalid email or password' });
+    }
+
+    const userData = user.toObject();
+    delete userData.password;
+    res.json({ message: 'Login successful', user: userData });
+  } catch (err) {
+    console.log(err.stack);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 

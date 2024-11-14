@@ -151,6 +151,7 @@ const UserSchema = new mongoose.Schema({
     required: [false, 'Profile banner field required']
   },
   testScores: [TestScoreSchema],
+  elaTestScore: { type: Number,  default: 0 },
   emergencyContact: {
     type: EmergencyContactSchema,
     required: false

@@ -11,7 +11,7 @@ testRouter.get('/', async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
-});
+}); 
 
 testRouter.get('/:testId', async (req, res) => {
   try {
@@ -68,7 +68,7 @@ testRouter.get('/:testId/user/:userId', async (req, res) => {
     res.status(200).json({success: true, testData: testData, userTestData: userTest});
   }
 });
-
+ 
 
 testRouter.post('/submittest', async(req, res) => {
   try {

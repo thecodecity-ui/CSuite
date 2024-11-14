@@ -17,9 +17,14 @@ const PaymentSchema = mongoose.Schema(
             type : String ,
             required : [true, 'Email field required']
         },
+        courseData :{
+            type : [] ,
+            required : [true, 'Course Data required']
 
-        paymentId:{
-            type : String ,
+        },
+
+        paymentData:{
+            type : [] ,
             required : [true, 'paymentId field required']
         },
 
@@ -42,16 +47,15 @@ module.exports = Payment
 
 const stripe = require("stripe")("sk_test_51PUVZZRrG0ZkGYrrIq8xX3O1fcIQ4xrvYmHRM9m6oFSNjEZL0AcRnLmnAx7ZORfMLH0UwqEDQGlcFlfv7Hm7JJoN00nHLBHIxq");
 
-async function createCheckoutSession(item) {
+async function createCheckoutSession(item, id) {
     const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         line_items: item,
         mode: "payment",
-        success_url: `https://csuite-academy.netlify.app/home/courseDetails/+req.body.id+?status=success`,
-        cancel_url: `https://csuite-academy.netlify.app/home/courseDetails/+req.body.id+?status=failed`
+        success_url: `https://csuiteacademy.netlify.app/home/courseDetails/`+id+`?status=success`,
+        cancel_url: `https://csuiteacademy.netlify.app/home/courseDetails/`+id+`?status=failed`
     });
-    return session.id;
+    return {id:session.id, couseid:id,other:session,};
 }
 
 module.exports = { createCheckoutSession };
-
