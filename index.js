@@ -11,7 +11,7 @@ app.use(cors());
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 // Models
-const Contact = require('./models/Contact.model');
+//const Contact = require('./models/Contact.model');
 // const CourseList = require('./models/CourseList.model');
 
 
@@ -24,11 +24,11 @@ const userRouter = require('./routes/User.router')
 const paymentRouter = require('./routes/Payment.router')
 const calenderRouter = require('./routes/Calender.router')
 const testRouter = require('./routes/Test.router');
-
+const router = require('./routes/Question.router')
 const UploadDriveRouter = require('./routes/UploadToDrive.router')
 const UploadVimeoRouter = require('./routes/UploadToVimeo.router')
 const CompleteVideo = require('./routes/CompletedVideo.router')
-
+const instructorRoutes = require('./routes/Instructor.router');
 // app.use(bodyParser.json)
 
 app.use('/api/contact', contactRouter)
@@ -38,11 +38,11 @@ app.use('/api/user', userRouter)
 app.use('/api/payment', paymentRouter)
 app.use('/api/calender', calenderRouter)
 app.use('/api/tests', testRouter);
-
+app.use('/api/question', router);
 app.use('/api/uploadtodrive', UploadDriveRouter);
 app.use('/api/uploadtovimeo', UploadVimeoRouter);
 app.use('/api/completevideo', CompleteVideo);
-
+app.use('/api/instructor',instructorRoutes );
 // Root route
 app.get('/', (req, res) => {
   res.send('Welcome to the API!');
