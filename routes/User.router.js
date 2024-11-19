@@ -227,9 +227,14 @@ userRouter.delete('/:id', async (req, res) => {
 
 userRouter.post('/progress/update', async (req, res) => {
   const { userId, courseId, lessonIndex, chapterIndex } = req.body;
+
   try {
-    const user = await updateVideoProgress(userId, courseId, lessonIndex, chapterIndex);
-    res.status(200).json(user);
+    const result = await updateVideoProgress(userId, courseId, lessonIndex, chapterIndex);
+    res.status(200).json({
+      message: 'Progress updated successfully',
+      watchedPercentage: result.watchedPercentage,
+      courseProgress: result.courseProgress
+    });
   } catch (error) {
     res.status(500).json({ message: 'Error updating video progress', error });
   }
