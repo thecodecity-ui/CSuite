@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const User = require('../models/User.model');
 const CourseDetail = require('../models/CourseDetails.model');
 const { findUserByEmail, insertUser } = require('../models/User.model');
+const { updateVideoProgress, calculateCompletionPercentage } = require('../services/progressService');
 
 const QuestionModel = require('../models/Question.model');
 
@@ -96,29 +97,6 @@ userRouter.post('/', upload.fields([{ name: 'profilePic' }, { name: 'profileBann
     res.status(500).json({ success: false, message: e.message });
   }
 });
-
-//userRouter.post('/', upload.fields([{ name: 'profilePic' }, { name: 'profileBanner' }]), async (req, res) => {
-//  try {
-//    const { password, socialMediaId, ...rest } = req.body;
-//    const profilePic = req.files.profilePic ? req.files.profilePic[0].buffer.toString('base64') : null;
-//    const profileBanner = req.files.profileBanner ? req.files.profileBanner[0].buffer.toString('base64') : null;
-
-//    let newUser;
-//    if (socialMediaId) {
-//      newUser = new User({ ...rest, profilePic, profileBanner, socialMediaId });
-//    } else if (password) {
-//      const hashedPassword = await bcrypt.hash(password, 10);
-//      newUser = new User({ ...rest, password: hashedPassword, profilePic, profileBanner });
-//    } else {
-//      return res.status(400).json({ success: false, message: 'Password or social media ID required' });
-//    }
-
-//    const savedUser = await newUser.save();
-//    res.status(201).json({ success: true, user: savedUser, message: "User added successfully" });
-//  } catch (e) {
-//    res.status(500).json({ success: false, message: e.message });
-//  }
-//});
 
 
 userRouter.put('/:id', upload.fields([{ name: 'profilePic' }, { name: 'profileBanner' }]), async (req, res) => {
@@ -246,95 +224,6 @@ userRouter.delete('/:id', async (req, res) => {
     res.status(500).json({ success: false, message: e.message });
   }
 });
-
-
-const updateVideoProgress = async (userId, courseId, lessonIndex, chapterIndex) => {
-  try {
-    const user = await User.findById(userId);
-    
-   
-    let courseProgress = user.courseProgress.find(cp => cp.courseId.equals(courseId));
-    if (!courseProgress) {
-      courseProgress = {
-        courseId: courseId,
-        lessons: []
-      };
-      user.courseProgress.push(courseProgress);
-    }
-    
-  
-    let lessonProgress = courseProgress.lessons.find(lesson => lesson.lessonId === lessonIndex);
-    if (!lessonProgress) {
-      lessonProgress = {
-        lessonId: lessonIndex,
-        chapters: []
-      };
-      courseProgress.lessons.push(lessonProgress);
-    }
-    
-    
-    let chapterProgress = lessonProgress.chapters.find(chapter => chapter.chapterId === chapterIndex);
-    if (!chapterProgress) {
-      chapterProgress = {
-        chapterId: chapterIndex,
-        watched: true
-      };
-      lessonProgress.chapters.push(chapterProgress);
-    } else {
-      chapterProgress.watched = true;
-    }
-    
-    await user.save();
-    return user;
-  } catch (error) {
-    console.error('Error updating video progress:', error);
-    throw error;
-  }
-};
-
-const calculateCompletionPercentage = async (userId, courseId) => {
-  try {
-    const user = await User.findById(userId).populate('courseProgress.courseId');
-    
-    const courseProgress = user.courseProgress.find(cp => cp.courseId.equals(courseId));
-    if (!courseProgress) {
-      return { percentage: 0, lessons: [] };
-    }
-
-    const courseDetail = await CourseDetail.findById(courseId);
-    const totalLessons = courseDetail.lessons.length;
-
-    let totalWatchedLessons = 0;
-    const lessonProgresses = courseProgress.lessons.map(lp => {
-      const lessonDetail = courseDetail.lessons[lp.lessonId];
-      const totalChapters = lessonDetail.chapter.length;
-
-      let watchedChapters = lp.chapters.filter(ch => ch.watched).length;
-      let lessonPercentage = (watchedChapters / totalChapters) * 100;
-
-      if (lessonPercentage === 100) {
-        totalWatchedLessons++;
-      }
-
-      return {
-        lessonId: lp.lessonId,
-        percentage: lessonPercentage,
-        chapters: lp.chapters
-      };
-    });
-
-    const overallPercentage = (totalWatchedLessons / totalLessons) * 100;
-
-    return {
-      percentage: overallPercentage,
-      lessons: lessonProgresses
-    };
-  } catch (error) {
-    console.error('Error calculating completion percentage:', error);
-    throw error;
-  }
-};
-
 
 userRouter.post('/progress/update', async (req, res) => {
   const { userId, courseId, lessonIndex, chapterIndex } = req.body;
