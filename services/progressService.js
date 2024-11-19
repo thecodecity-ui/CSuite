@@ -1,5 +1,5 @@
 const User = require('../models/User.model');
-const CourseDetail = require('../models/CourseDetail.model');
+const CourseDetail = require('../models/CourseDetails.model');
 
 const updateVideoProgress = async (userId, courseId, lessonIndex, chapterIndex) => {
   try {
