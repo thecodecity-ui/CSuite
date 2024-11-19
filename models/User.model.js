@@ -7,9 +7,13 @@ const ChapterProgressSchema = new mongoose.Schema({
     type: Number, 
     required: true
   },
-  watched: {
+ watched: {
     type: Boolean,
     default: false
+  },
+  watchedAt: {
+    type: Date, 
+    default: null
   }
 }, { _id: false });
 
@@ -32,9 +36,12 @@ const CourseProgressSchema = new mongoose.Schema({
   lessons: {
     type: [LessonProgressSchema],
     default: []
+  },
+  watchedPercentage: {
+    type: Number,
+    default: 0 
   }
 }, { _id: false });
-
 
 const CoursePurchasedSchema = new mongoose.Schema({
   courseId: {
