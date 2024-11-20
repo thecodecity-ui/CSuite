@@ -15,6 +15,15 @@ contactRouter.post('/', async(req,res)=>{
     }
 
 })
+contactRouter.get('/', async (req, res) => {
+    try {
+        const filters = req.query;
+        const contacts = await Contact.find(filters);
+        res.json({ success: true, message: "Contacts retrieved successfully", data: contacts });
+    } catch (e) {
+        res.status(400).json({ success: false, message: "Bad Request", error: e.message });
+    }
+});
 
 
 
