@@ -350,7 +350,7 @@ userRouter.post('/login', async (req, res) => {
 });
 
 // Route to reset the user's password
-router.put('/:id/resetpass', async (req, res) => {
+userRouter.put('/:id/resetpass', async (req, res) => {
   try {
     const { id } = req.params;
     const { newPassword } = req.body;
