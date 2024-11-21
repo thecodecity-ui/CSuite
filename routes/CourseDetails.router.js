@@ -9,10 +9,12 @@ const courseDetailsRouter = express.Router();
 // const storage = multer.memoryStorage();
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, './uploads/images/');  
+    const uploadPath = './uploads/images/';  
+    fs.existsSync(uploadPath) || fs.mkdirSync(uploadPath, { recursive: true });
+    cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
+    cb(null, Date.now() + path.extname(file.originalname)); 
   }
 });
 const upload = multer({ storage: storage });
