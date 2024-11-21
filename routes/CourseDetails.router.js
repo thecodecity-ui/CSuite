@@ -101,6 +101,30 @@ courseDetailsRouter.get('/:id', async (req, res) => {
   }
 });
 
+courseDetailsRouter.put('/edit/:id', upload.single('image'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      title,
+      description,
+      overviewPoints,
+      lessons,
+      header,
+      videoUrl,
+      whoIsThisFor,
+      whatYouGet,
+      syllabus,
+      price
+    } = req.body;
+
+    const currentCourse = await CourseDetail.findById(id);
+    if (!currentCourse) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+    let image = currentCourse.image;
+    if (req.file) {
+      image = bufferToBase64(req.file.buffer); 
+    }
  const updatedCourse = await CourseDetail.findByIdAndUpdate(
       id,
       {
@@ -122,7 +146,6 @@ courseDetailsRouter.get('/:id', async (req, res) => {
     if (!updatedCourse) {
       return res.status(404).json({ message: 'Course not found' });
     }
-
     res.status(200).json({ message: 'Course updated successfully', updatedCourse });
   } catch (error) {
     console.error(error);
