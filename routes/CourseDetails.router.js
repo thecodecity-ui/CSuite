@@ -8,7 +8,8 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 // Convert buffer to Base64 
-const bufferToBase64 = (buffer) => `data:image/jpeg;base64,${buffer.toString('base64')}`;
+// const bufferToBase64 = (buffer) => `data:image/jpeg;base64,${buffer.toString('base64')}`;
+const bufferToBase64 = (buffer) => {return buffer.toString('base64');};
 
 const parseJsonFields = (req, res, next) => {
   try {
