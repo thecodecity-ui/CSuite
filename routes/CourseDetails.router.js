@@ -20,7 +20,10 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Convert buffer to Base64 
-const bufferToBase64 = (buffer) => {return buffer.toString('base64');};
+// const bufferToBase64 = (buffer) => {return buffer.toString('base64');};
+const bufferToBase64 = (buffer) => {if (!buffer) return ''; 
+  return buffer.toString('base64');
+};
 
 const parseJsonFields = (req, res, next) => {
   try {
@@ -102,7 +105,6 @@ courseDetailsRouter.get('/:id', async (req, res) => {
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }
-    // Convert image field to Base64 data URL for single course
     if (course.image) {
       course.image = `data:image/jpeg;base64,${course.image}`;
     }
@@ -139,10 +141,11 @@ courseDetailsRouter.put('/edit/:id', upload.single('image'), async (req, res) =>
       }
     }
     let image = currentCourse.image;
-    if (req.file) {
-      image = `/uploads/images/${req.file.filename}`;  
+     if (req.file) {
+      console.log('Uploaded file:', req.file);
+      image = bufferToBase64(req.file.buffer); 
     }
-
+   
     const updatedCourse = await CourseDetail.findByIdAndUpdate(
       id,
       {
