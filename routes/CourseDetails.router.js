@@ -6,17 +6,17 @@ const CourseDetail = require('../models/CourseDetails.model');
 
 const courseDetailsRouter = express.Router();
 
-// const storage = multer.memoryStorage();
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadPath = './uploads/images/';  
-    fs.existsSync(uploadPath) || fs.mkdirSync(uploadPath, { recursive: true });
-    cb(null, uploadPath);
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname)); 
-  }
-});
+const storage = multer.memoryStorage();
+// const storage = multer.diskStorage({
+//  destination: (req, file, cb) => {
+//    const uploadPath = './uploads/images/';  
+//    fs.existsSync(uploadPath) || fs.mkdirSync(uploadPath, { recursive: true });
+//    cb(null, uploadPath);
+//  },
+//  filename: (req, file, cb) => {
+//    cb(null, Date.now() + path.extname(file.originalname)); 
+//  }
+// });
 const upload = multer({ storage: storage });
 
 // Convert buffer to Base64 
@@ -114,67 +114,6 @@ courseDetailsRouter.get('/:id', async (req, res) => {
   }
 });
 
-courseDetailsRouter.put('/edit/:id', upload.single('image'), async (req, res) => {
-  try {
-    const { id } = req.params;
-    const {
-      title,
-      description,
-      overviewPoints,
-      lessons,
-      header,
-      videoUrl,
-      whoIsThisFor,
-      whatYouGet,
-      syllabus,
-      price
-    } = req.body;
-
-    const currentCourse = await CourseDetail.findById(id);
-    if (!currentCourse) {
-      return res.status(404).json({ message: 'Course not found' });
-    }
-    if (req.file && currentCourse.image) {
-      const oldImagePath = path.join(__dirname, '..', currentCourse.image);
-      if (fs.existsSync(oldImagePath)) {
-        fs.unlinkSync(oldImagePath); 
-      }
-    }
-    let image = currentCourse.image;
-     if (req.file) {
-      console.log('Uploaded file:', req.file);
-      image = bufferToBase64(req.file.buffer); 
-    }
-   
-    const updatedCourse = await CourseDetail.findByIdAndUpdate(
-      id,
-      {
-        title,
-        description,
-        overviewPoints,
-        image,  // Updated image URL or old image if no new upload
-        lessons,
-        header,
-        videoUrl,
-        whoIsThisFor,
-        whatYouGet,
-        syllabus,
-        price: Number(price)
-      },
-      { new: true } 
-    );
-
-    if (!updatedCourse) {
-      return res.status(404).json({ message: 'Course not found' });
-    }
-
-    res.status(200).json({ message: 'Course updated successfully', updatedCourse });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error updating course', error: error.message });
-  }
-});
-
 // courseDetailsRouter.put('/edit/:id', upload.single('image'), async (req, res) => {
 //  try {
 //    const { id } = req.params;
@@ -195,11 +134,19 @@ courseDetailsRouter.put('/edit/:id', upload.single('image'), async (req, res) =>
 //    if (!currentCourse) {
 //      return res.status(404).json({ message: 'Course not found' });
 //    }
+//    if (req.file && currentCourse.image) {
+//      const oldImagePath = path.join(__dirname, '..', currentCourse.image);
+//      if (fs.existsSync(oldImagePath)) {
+//        fs.unlinkSync(oldImagePath); 
+//      }
+//    }
 //    let image = currentCourse.image;
-//    if (req.file) {
+//     if (req.file) {
+//      console.log('Uploaded file:', req.file);
 //      image = bufferToBase64(req.file.buffer); 
 //    }
-// const updatedCourse = await CourseDetail.findByIdAndUpdate(
+   
+//    const updatedCourse = await CourseDetail.findByIdAndUpdate(
 //      id,
 //      {
 //        title,
@@ -209,8 +156,8 @@ courseDetailsRouter.put('/edit/:id', upload.single('image'), async (req, res) =>
 //        lessons,
 //        header,
 //        videoUrl,
- //       whoIsThisFor,
- //       whatYouGet,
+//        whoIsThisFor,
+//        whatYouGet,
 //        syllabus,
 //        price: Number(price)
 //      },
@@ -220,12 +167,65 @@ courseDetailsRouter.put('/edit/:id', upload.single('image'), async (req, res) =>
 //    if (!updatedCourse) {
 //      return res.status(404).json({ message: 'Course not found' });
 //    }
+
 //    res.status(200).json({ message: 'Course updated successfully', updatedCourse });
 //  } catch (error) {
 //    console.error(error);
 //    res.status(500).json({ message: 'Error updating course', error: error.message });
 //  }
 // });
+
+courseDetailsRouter.put('/edit/:id', upload.single('image'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      title,
+      description,
+      overviewPoints,
+      lessons,
+      header,
+      videoUrl,
+      whoIsThisFor,
+      whatYouGet,
+      syllabus,
+      price
+    } = req.body;
+
+    const currentCourse = await CourseDetail.findById(id);
+    if (!currentCourse) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+    let image = currentCourse.image;
+    if (req.file) {
+      image = bufferToBase64(req.file.buffer); 
+    }
+ const updatedCourse = await CourseDetail.findByIdAndUpdate(
+      id,
+      {
+        title,
+        description,
+        overviewPoints,
+        image, 
+        lessons,
+        header,
+        videoUrl,
+        whoIsThisFor,
+        whatYouGet,
+        syllabus,
+        price: Number(price)
+      },
+      { new: true } 
+    );
+
+    if (!updatedCourse) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+    res.status(200).json({ message: 'Course updated successfully', updatedCourse });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error updating course', error: error.message });
+  }
+ });
 
 
 courseDetailsRouter.delete('/delete/:id', async (req, res) => {
