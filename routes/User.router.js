@@ -9,7 +9,7 @@ const { findUserByEmail, insertUser } = require('../models/User.model');
 const { updateVideoProgress, calculateCompletionPercentage } = require('../services/progressService');
 
 const QuestionModel = require('../models/Question.model');
-const { getAuth } = require("firebase-admin/auth");
+
 
 const userRouter = Router();
 
@@ -351,68 +351,30 @@ userRouter.post('/login', async (req, res) => {
 });
 
 // Route to reset the user's password
-// userRouter.put('/:id/resetpass', async (req, res) => {
-//  try {
-//    const { id } = req.params;
- //   const { newPassword } = req.body;
-
-//    if (!newPassword) {
- //     return res.status(400).json({ success: false, message: 'New password is required' });
-  //  }
-   // const user = await User.findById(id);
-  //  if (!user) {
-   //   return res.status(404).json({ success: false, message: 'User not found' });
-   // }
-
-   // const hashedPassword = await bcrypt.hash(newPassword, 10);
-  //  user.password = hashedPassword;
-  //  await user.save();
-  //  res.status(200).json({ success: true, message: 'Password reset successfully' });
- // } catch (error) {
-   // console.error('Error resetting password:', error);
-   // res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
- // }
-//});
-
-
-
-
-userRouter.post("/resetpass", async (req, res) => {
+ userRouter.put('/:id/resetpass', async (req, res) => {
   try {
-    const { oobCode, newPassword } = req.body;
+    const { id } = req.params;
+    const { newPassword } = req.body;
 
-    if (!oobCode || !newPassword) {
-      return res.status(400).json({
-        success: false,
-        message: "oobCode and newPassword are required",
-      });
+    if (!newPassword) {
+      return res.status(400).json({ success: false, message: 'New password is required' });
     }
-
-    const auth = getAuth();
-    const userEmail = await auth.verifyPasswordResetCode(oobCode);
-
-    const user = await User.findOne({ email: userEmail });
+    const user = await User.findById(id);
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
+
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
     await user.save();
-
-    res.status(200).json({
-      success: true,
-      message: "Password updated successfully",
-    });
+    res.status(200).json({ success: true, message: 'Password reset successfully' });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
+   console.error('Error resetting password:', error);
+    res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
   }
 });
+
+
 
 
 
