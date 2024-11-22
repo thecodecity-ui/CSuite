@@ -374,6 +374,22 @@ userRouter.post('/login', async (req, res) => {
   }
 });
 
+ userRouter.post("/verify-reset-link", async (req, res) => {
+  const { oobCode } = req.body;
+
+  try {
+    const { email } = await admin.auth().verifyPasswordResetCode(oobCode);
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    res.json({ success: true, userId: user._id });
+  } catch (err) {
+    res.status(400).json({ success: false, message: err.message });
+  }
+});
 
 
 
