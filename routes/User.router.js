@@ -7,7 +7,7 @@ const User = require('../models/User.model');
 const CourseDetail = require('../models/CourseDetails.model');
 const { findUserByEmail, insertUser } = require('../models/User.model');
 const { updateVideoProgress, calculateCompletionPercentage } = require('../services/progressService');
-
+const { verifyPasswordResetCode } = require("firebase/auth");
 const QuestionModel = require('../models/Question.model');
 
 const userRouter = Router();
@@ -373,24 +373,41 @@ userRouter.post('/login', async (req, res) => {
  // }
 //});
 
-userRouter.put("/resetpass", async (req, res) => {
-  const { email, newPassword } = req.body;
 
+
+
+userRouter.get("/resetpass/userid", async (req, res) => {
   try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
-    }
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    user.password = hashedPassword;
-    await user.save();
+    const { oobCode } = req.query;
 
-    res.status(200).json({ success: true, message: "Password reset successfully" });
+    if (!oobCode) {
+      return res.status(400).json({
+        success: false,
+        message: "oobCode is required",
+      });
+    }
+
+    const email = await verifyPasswordResetCode(auth, oobCode);
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+    res.status(200).json({
+      success: true,
+      userId: user._id,
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 });
+
 
 
 module.exports = userRouter;
