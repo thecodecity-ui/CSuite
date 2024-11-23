@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const PORT = process.env.PORT || 5000; 
+
 
 const connectionString = "mongodb+srv://sarandatabase:saran%40143@mycluster.zm3yrdt.mongodb.net/demo?retryWrites=true&w=majority&appName=MyCluster";
 const app = express();
@@ -45,24 +45,14 @@ app.get('/', (req, res) => {
 });
 
 
-// Database connection
-mongoose.connect(connectionString, {})
+// Db connection
+ mongoose.connect(connectionString, {})
   .then(() => {
-    app.listen(PORT, () => {
-      console.log(`Db connected - Listening on port ${PORT}`);
+    app.listen(5000, () => {
+    console.log("Db connected - Listening port 5000");
     });
   })
   .catch((e) => {
-    console.error('Database connection error:', e);
+    console.log(e);
   });
-// Db connection
-// mongoose.connect(connectionString, {})
-//  .then(() => {
-//    app.listen(5000, () => {
-//      console.log("Db connected - Listening port 5000");
-//    });
-//  })
-//  .catch((e) => {
-//    console.log(e);
-//  });
 
