@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
- 
+const PORT = process.env.PORT || 5000; 
 
 const connectionString = "mongodb+srv://sarandatabase:saran%40143@mycluster.zm3yrdt.mongodb.net/demo?retryWrites=true&w=majority&appName=MyCluster";
 const app = express();
@@ -10,10 +10,6 @@ const app = express();
 app.use(cors());
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
-// Models
-//const Contact = require('./models/Contact.model');
-// const CourseList = require('./models/CourseList.model');
-
 
 // Routers
 
@@ -48,13 +44,25 @@ app.get('/', (req, res) => {
   res.send('Welcome to the API!');
 });
 
-// Db connection
+
+// Database connection
 mongoose.connect(connectionString, {})
   .then(() => {
-    app.listen(5000, () => {
-      console.log("Db connected - Listening port 5000");
+    app.listen(PORT, () => {
+      console.log(`Db connected - Listening on port ${PORT}`);
     });
   })
   .catch((e) => {
-    console.log(e);
+    console.error('Database connection error:', e);
   });
+// Db connection
+// mongoose.connect(connectionString, {})
+//  .then(() => {
+//    app.listen(5000, () => {
+//      console.log("Db connected - Listening port 5000");
+//    });
+//  })
+//  .catch((e) => {
+//    console.log(e);
+//  });
+
