@@ -9,7 +9,7 @@ const { findUserByEmail, insertUser } = require('../models/User.model');
 const { updateVideoProgress, calculateCompletionPercentage } = require('../services/progressService');
 
 const QuestionModel = require('../models/Question.model');
-
+const admin = require('../service/firebaseAdmin')
 
 const userRouter = Router();
 
