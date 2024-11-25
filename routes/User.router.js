@@ -353,26 +353,33 @@ userRouter.post('/login', async (req, res) => {
 });
 
 userRouter.put('/:id/resetpass', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { newPassword } = req.body;
+  const { id } = req.params;
+  const { newPassword } = req.body;
 
+  console.log("Received ID:", id);
+  console.log("Received New Password:", newPassword);
+
+  try {
     if (!newPassword) {
-      return res.status(400).json({ success: false, message: 'New password is required' });
+      return res.status(400).json({ success: false, message: "New password is required" });
     }
+
     const user = await User.findById(id);
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
+      console.error("User not found:", id);
+      return res.status(404).json({ success: false, message: "User not found" });
     }
-    user.password = newPassword;
-    await user.save();
 
-    res.status(200).json({ success: true, message: 'Password reset successfully' });
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+    res.status(200).json({ success: true, message: "Password reset successfully" });
   } catch (error) {
-    console.error('Error resetting password:', error);
-    res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
+    console.error("Error resetting password:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
+
 
 
 
