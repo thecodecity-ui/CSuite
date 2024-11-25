@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-
+const bodyParser = require('body-parser');
 
 const connectionString = "mongodb+srv://sarandatabase:saran%40143@mycluster.zm3yrdt.mongodb.net/demo?retryWrites=true&w=majority&appName=MyCluster";
 const app = express();
@@ -10,7 +10,7 @@ const app = express();
 app.use(cors());
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
-
+app.use(bodyParser.json());
 // Routers
 
 const contactRouter = require('./routes/Contact.router')

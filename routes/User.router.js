@@ -9,7 +9,9 @@ const { findUserByEmail, insertUser } = require('../models/User.model');
 const { updateVideoProgress, calculateCompletionPercentage } = require('../services/progressService');
 
 const QuestionModel = require('../models/Question.model');
-const admin = require('../services/firebaseAdmin')
+
+const { auth } = require("../services/firebaseAdmin");
+const { verifyPasswordResetCode } = require("firebase/auth");
 
 const userRouter = Router();
 
@@ -374,25 +376,26 @@ userRouter.post('/login', async (req, res) => {
   }
 });
 
- userRouter.post("/verify-reset-link", async (req, res) => {
+
+
+userRouter.post("/verify-reset-link", async (req, res) => {
   const { oobCode } = req.body;
 
   try {
-    const { email } = await admin.auth().verifyPasswordResetCode(oobCode);
+  
+    const email = await verifyPasswordResetCode(auth, oobCode);
     const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    res.json({ success: true, userId: user._id });
+    res.status(200).json({ success: true, userId: user._id });
   } catch (err) {
+    console.error("Error verifying reset link:", err);
     res.status(400).json({ success: false, message: err.message });
   }
 });
-
-
-
 
 
 module.exports = userRouter;
